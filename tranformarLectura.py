@@ -36,6 +36,11 @@ class DemoApp(MDApp):
             orientation="vertical", size_hint=(1, 0.32), padding=(20, 20, 20, 10)
         )
 
+
+
+
+
+
         # Agregar Caravana -----------------
 
         add_layout = BoxLayout(orientation="horizontal")
@@ -54,7 +59,11 @@ class DemoApp(MDApp):
         add_layout.add_widget(btn_add)
         add_layout.add_widget(TxtF_Caravana)
 
-        
+        button_layout.add_widget(add_layout) # Agrega los Widget para Agregar Caravana 
+
+
+
+
         # Modificar Fecha -----------------
 
         modFecha_layout = BoxLayout(orientation="horizontal")
@@ -73,21 +82,53 @@ class DemoApp(MDApp):
             required=True,  # Requerir que se ingrese un valor
         )
 
-
         self.TxtF_Fecha.bind(text=self.on_text_validate)  # Vincular evento de validación
-
-
         modFecha_layout.add_widget(btn_modFecha)
-        modFecha_layout.add_widget(self.TxtF_Fecha)
+        modFecha_layout.add_widget(self.TxtF_Fecha)      
+   
+        button_layout.add_widget(modFecha_layout) # Agrega los Widget para Modificar Fecha
 
+
+
+
+
+        # Modificar Hora -----------------
+
+        modHor_layout = BoxLayout(orientation="horizontal")
+
+        btn_modHora = Button(text="Modificar Hora")
+        # btn_modHora.bind(on_release=self.btn_modHora_release)
+
+        Hora_actual = datetime.now().strftime("%Y-%m-%d")  # Formato: AAAA-MM-DD
+
+        self.TxtF_Hora = MDTextField(
+            text=Hora_actual,  # Asignar la Hora actual al campo
+            hint_text="Ingrese una Hora",
+            helper_text="Formato: AAAA-MM-DD",
+            helper_text_mode="persistent",
+            icon_right="calendar",
+            required=True,  # Requerir que se ingrese un valor
+        )
+
+        self.TxtF_Hora.bind(text=self.on_text_validate)  # Vincular evento de validación
+        modHor_layout.add_widget(btn_modHora)
+        modHor_layout.add_widget(self.TxtF_Hora)      
+   
+        button_layout.add_widget(modHor_layout) # Agrega los Widget para Modificar Hora
+
+
+
+
+
+        
+        # Boton Eliminar Caravana --------------------------------
 
         btn_remove = Button(text="Eliminar Caravana")
 
         button_layout.add_widget(btn_remove)
-        button_layout.add_widget(add_layout)
-        button_layout.add_widget(modFecha_layout)
+        
 
-        screen.add_widget(button_layout)
+        screen.add_widget(button_layout) # Agrega todo los Widget juntos en un Loyout
 
         return screen
 
@@ -126,6 +167,11 @@ class DemoApp(MDApp):
 
     # Modifica fecha de la lectura
     def btn_modFecha_release(self, instance):
+        print("Botón 1 presionado")
+
+
+    # Modifica Hora de la lectura
+    def btn_modHora_release(self, instance):
         print("Botón 1 presionado")
 
     
