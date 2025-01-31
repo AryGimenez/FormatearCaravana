@@ -29,3 +29,42 @@ Para ejecutar el script, utiliza el siguiente comando:
 
 ```bash
 python transformador.py <archivo_entrada> <archivo_salida>
+
+<archivo_entrada>: Archivo de texto plano con la lista de números de caravanas sin formato, uno por línea.
+<archivo_salida>: Archivo de texto plano donde se guardarán los números transformados.
+Formato de Entrada
+El archivo de entrada debe contener una lista de números de caravanas, uno por línea. Por ejemplo:
+
+059761617
+059761665
+059761645
+...
+Formato de Salida
+El archivo de salida contendrá los números transformados, uno por línea, en el siguiente formato:
+
+[|A0000000<numero_caravana>|<fecha>|<hora>|<codigo>|]
+<numero_caravana>: Número de caravana con ceros a la izquierda para completar 9 dígitos.
+<fecha>: Fecha en formato DDMMYYYY (ejemplo: 14122023).
+<hora>: Hora en formato HHMMSS (ejemplo: 121011).
+<codigo>: Código alfanumérico (ejemplo: C788853).
+Ejemplo
+Si el archivo de entrada (entrada.txt) contiene:
+
+059761617
+059761665
+Y se ejecuta el script con:
+
+Bash
+
+python transformador.py entrada.txt salida.txt
+El archivo de salida (salida.txt) contendrá:
+
+[|A000000059761617|14122023|121011|C788853|]
+[|A000000059761665|14122023|121011|C788853|]
+Contribución
+¡Las contribuciones son bienvenidas! Si deseas mejorar este proyecto, por favor, abre un "issue" o envía un "pull request" en GitHub.
+
+Licencia
+Este proyecto está bajo la licencia MIT.
+
+Recuerda reemplazar <tu-usuario> y <nombre-del-repositorio> con la información correcta. ¡Espero que esto te sea útil!
