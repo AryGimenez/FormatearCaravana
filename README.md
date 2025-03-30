@@ -30,8 +30,10 @@ Para ejecutar el script, utiliza el siguiente comando:
 ```bash
 python transformador.py <archivo_entrada> <archivo_salida>
 
-<archivo_entrada>: Archivo de texto plano con la lista de números de caravanas sin formato, uno por línea.
-<archivo_salida>: Archivo de texto plano donde se guardarán los números transformados.
+```
+
+**<archivo_entrada>:** Archivo de texto plano con la lista de números de caravanas sin formato, uno por línea.
+**<archivo_salida>:** Archivo de texto plano donde se guardarán los números transformados.
 Formato de Entrada
 El archivo de entrada debe contener una lista de números de caravanas, uno por línea. Por ejemplo:
 
@@ -68,3 +70,8 @@ Licencia
 Este proyecto está bajo la licencia MIT.
 
 Recuerda reemplazar <tu-usuario> y <nombre-del-repositorio> con la información correcta. ¡Espero que esto te sea útil!
+
+
+
+## Tambien Esta pensado para tranformar de el formato de caravanas SVG Para el lector trutest https://latam.tru-test.com/
+
