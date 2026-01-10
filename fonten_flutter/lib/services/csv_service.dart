@@ -5,87 +5,96 @@ import 'package:file_picker/file_picker.dart';
 import 'package:fonten_flutter/services/base_service.dart';
 import '../models/caravana_models.dart';
 
+enum DuplicadosStrategy {
+  agregarTodos,      // Opción 1: Agrega duplicados y no duplicados
+  soloNuevos,        // Opción 2: Solo agrega los que no existían
+  cancelarSiHay      // Opción 3: Si detecta algún duplicado, no agrega nada
+}
+
 mixin CsvService on BaseService{
 
+/// Importa una lista de caravanas desde un archivo [file] CSV.
+  /// 
+  /// El parámetro [estrategia] define cómo manejar colisiones de EID:
+  /// * [DuplicadosStrategy.agregarTodos]: No valida duplicados, mete todo el archivo.
+  /// * [DuplicadosStrategy.soloNuevos]: Compara contra la lista actual y solo suma los EID inexistentes.
+  /// * [DuplicadosStrategy.cancelarSiHay]: Si un solo EID ya existe en la lista, aborta la operación.
+Future<void> importarDesdeCsv(
+    File file, {
+    required DuplicadosStrategy estrategia,
+  }) async {
+    // 1. Validaciones iniciales
+    if (!file.path.endsWith('.csv')) throw ImportException("El archivo no es .csv");
+    
+    final lines = await file.readAsLines();
+    if (lines.length < 2) 
+      throw ImportException("Archivo vacío o sin cabecera.");
 
+    List<CaravanaModel> xListNuevas = [];
+    List<CaravanaModel> xDuplicadosEncontrados = [];
 
+    // Optimizamos la búsqueda: Creamos un Set con los IDs existentes
+    // Buscar en un Set es instantáneo, no importa si tenés 10 o 10.000 vacas.
+    final eidsExistentes = listCaravanas.map((c) => c.caravana).toSet();
 
+    // 2. Procesamiento de líneas
+    for (var i = 1; i < lines.length; i++) {
+      final data = lines[i].split(',');
+      if (data.length < 5) continue; // Evita errores si una línea viene mal
+      
+      // Formato que se espara del csv       
+      //858000051105095,,2024-07-02,11:23:09,Pint
+      final xCaravana = data[0].trim();
+      final xFecha = data[2].trim();
+      final xHora = data[3].trim();
+      final xGia = data[4].trim();
 
+      final nuevoModelo = CaravanaModel(
+        caravana: xCaravana,
+        gia: xGia,
+        hf_lectura: DateTime.parse("$xFecha $xHora"),
+      );
 
-/// Importa caravanas desde un archivo.
-  /// [file]: El archivo CSV seleccionado.
-  /// [agregarRestantes]: Si es true, agrega las nuevas aunque haya duplicadas. 
-  /// Si es false, si hay un solo duplicado, no agrega nada.
-  Future<void> importarDesdeCsv(File file, {bool agregarRestantes = false}) async {
-    List<CaravanaModel> nuevasProcesadas = [];
-    List<String> duplicadosEncontrados = [];
-
-    // 1. Validar extensión del archivo (Formato apropiado)
-    if (!file.path.endsWith('.csv')) {
-      throw ImportException("El archivo no tiene extensión .csv");
+      if (eidsExistentes.contains(xCaravana)) {
+        xDuplicadosEncontrados.add(nuevoModelo);
+      } else {
+        xListNuevas.add(nuevoModelo);
+      }
     }
 
-    try {
-      // 2. Leer líneas del archivo
-      final lines = await file.readAsLines();
-      
-      // 3. Validar si el archivo está vacío o no tiene cabecera mínima
-      if (lines.length < 2) {
-        throw ImportException("El archivo está vacío o no tiene el formato correcto.");
-      }
+    // 3. Ejecución de la Estrategia (Mover los datos a la lista global)
+    bool huboDuplicados = xDuplicadosEncontrados.isNotEmpty;
 
-      // 4. Procesar líneas (Omitiendo cabecera)
-      for (var i = 1; i < lines.length; i++) {
-        final data = lines[i].split(','); // Asumiendo separador por coma
-        
-        // Validación de columnas mínimas (EID, VID)
-        if (data.length < 2) continue; 
+    switch (estrategia) {
+      case DuplicadosStrategy.agregarTodos:
+        listCaravanas.addAll(xListNuevas);
+        listCaravanas.addAll(xDuplicadosEncontrados);
+        break;
 
-        final eid = data[0].trim();
-        final vid = data[1].trim();
+      case DuplicadosStrategy.soloNuevos:
+        listCaravanas.addAll(xListNuevas);
+        break;
 
-        // Verificar si ya existe en la lista global
-        bool existe = listCaravanas.any((c) => c.eid == eid);
+      case DuplicadosStrategy.cancelarSiHay:
+        if (!huboDuplicados) {
+          listCaravanas.addAll(xListNuevas);
+        } 
+        // Si hay duplicados, no agregamos NADA a listCaravanas
+        break;
+    }
 
-        if (existe) {
-          duplicadosEncontrados.add(eid);
-        } else {
-          nuevasProcesadas.add(CaravanaModel(
-            eid: eid, 
-            vid: vid, 
-            fecha: DateTime.now(), 
-            esOk: true
-          ));
-        }
-      }
+    // 4. Notificar a la UI (opcional según donde esté el método)
+    // notifyListeners(); 
 
-      // 5. Lógica de decisión de inserción
-      if (duplicadosEncontrados.isNotEmpty) {
-        if (agregarRestantes) {
-          // Agregamos las que no coinciden y avisamos de los duplicados
-          listCaravanas.addAll(nuevasProcesadas);
-          throw ImportException(
-            "Se agregaron ${nuevasProcesadas.length} caravanas, pero ${duplicadosEncontrados.length} ya existían.",
-            eidsDuplicados: duplicadosEncontrados
-          );
-        } else {
-          // No agregamos nada y lanzamos error crítico
-          throw ImportException(
-            "Importación cancelada: Se encontraron duplicados.",
-            eidsDuplicados: duplicadosEncontrados
-          );
-        }
-      } else {
-        // Todo limpio, agregamos todo
-        listCaravanas.addAll(nuevasProcesadas);
-      }
-
-    } catch (e) {
-      if (e is ImportException) rethrow;
-      throw ImportException("Error al procesar el contenido del archivo: $e");
+    // 5. Siempre lanzamos la excepción si hubo duplicados, 
+    // DESPUÉS de haber hecho la inserción correspondiente.
+    if (huboDuplicados) {
+      throw ImportException(
+        "Proceso finalizado con advertencias de duplicados.",
+        caravanasDuplicadas: xDuplicadosEncontrados,
+      );
     }
   }
-
 
   /// Abre el selector de archivos y parsea el CSV seleccionado
   /// 

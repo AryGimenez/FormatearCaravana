@@ -14,9 +14,9 @@ class CaravanaException implements Exception {
 /// Excepción personalizada para errores en la importación masiva.
 class ImportException implements Exception {
   final String message;
-  final List<String> eidsDuplicados; // Lista de IDs que ya existían
+  final List<CaravanaModel> caravanasDuplicadas; // Lista de IDs que ya existían
 
-  ImportException(this.message, {this.eidsDuplicados = const []});
+  ImportException(this.message, {this.caravanasDuplicadas = const []});
 
   @override
   String toString() => message;
@@ -28,27 +28,35 @@ abstract class BaseService {
 
   List <CaravanaModel> get caravanas => listCaravanas;
 
-  /// Método concreto (con lógica) que pueden usar todos los hijos
-  void addCaravana(CaravanaModel nueva) {
-    // Validaciones (Condiciones que mencionabas)
-    if (nueva.eid.isEmpty) {
-      throw CaravanaException("El EID no puede estar vacío.");
-    }
+/// Agrega una [pCaravana] a la colección actual.
+  /// 
+  /// Si la caravana ya existe (basado en su EID):
+  /// * Si [pAgregarSiNoExiste] es true, la agrega igualmente.
+  /// * Si [pAgregarSiNoExiste] es false, lanza una [CaravanaException].
+  /// 
+  /// Nota: El método siempre lanzará la excepción si el EID está duplicado, 
+  /// independientemente de si terminó agregando el registro o no.
+  void addCaravana(CaravanaModel pCaravana, {bool pAgregarSiNoExiste = false}) {
     
     // Ejemplo: No duplicar caravanas
-    bool existe = listCaravanas.any((c) => c.eid == nueva.eid);
-    if (existe) {
-      throw CaravanaException("La caravana con EID ${nueva.eid} ya existe.");
+    bool xExiste = listCaravanas.any((c) => c.caravana == pCaravana.caravana);
+    if (!xExiste || pAgregarSiNoExiste)
+      listCaravanas.add(pCaravana);
+    
+    if (xExiste) {
+      throw CaravanaException("La caravana con EID ${pCaravana.caravana} ya existe.");
     }
 
-    listCaravanas.add(nueva);
+    
   }
 
+  /// Elimina una caravana de la lista por su índice.
   void removeCaravana(int index) {
     listCaravanas.removeAt(index);
   }
 
-void asignarFechaLectura_2(DateTime nuevaFechaInicio) {
+  /// <!> Este es mi algoritmo abria que probar cual anda 
+  void asignarFechaLectura_2(DateTime nuevaFechaInicio) {
   if (listCaravanas.isEmpty) return; // Si la lista está vacía, no hacemos nada
   int index = 0;
   
@@ -74,6 +82,11 @@ void asignarFechaLectura_2(DateTime nuevaFechaInicio) {
 }
 
 
+/// Asigna una fecha de lectura a cada caravana en la lista.
+/// 
+/// El primer elemento toma la fecha proporcionada directamente,
+/// y cada elemento subsiguiente se ajusta según la diferencia
+/// con el elemento anterior.
 void asignarFechaLectura(DateTime nuevaFechaInicio) {
   if (listCaravanas.isEmpty) return;
 
@@ -105,16 +118,24 @@ void asignarFechaLectura(DateTime nuevaFechaInicio) {
   }
   
 }
-  
 
+  /// Actualiza el número de GIA únicamente en las caravanas marcadas.
+  /// 
+  /// Recorre la lista completa y asigna el valor [gia] a cada elemento 
+  /// cuya propiedad `seleccionada` sea verdadera. Las caravanas no 
+  /// seleccionadas permanecen con su GIA original.
   void asignarGia(String gia){ 
-    listCaravanas.forEach((element) {
-      if(element.seleccionada){
-        element.gia = gia;
+    for (var xCaravana in listCaravanas) {
+      if(xCaravana.seleccionada){
+        xCaravana.gia = gia;
       }
-    });
+    } // Fin del for 
   }
 
+  /// Elimina todos los elementos de la lista de caravanas actual.
+  /// 
+  /// Utilice este método para reiniciar el proceso de carga o 
+  /// limpiar la memoria antes de una nueva importación.
   void clearCaravanas() {
     listCaravanas.clear();
   }
