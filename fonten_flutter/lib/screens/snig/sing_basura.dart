@@ -1,4 +1,148 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Librería para formateo de fechas y horas
+import '../../models/caravana_models.dart';
+import '../../core/theme/app_theme.dart';
+
+class CaravanaItem extends StatelessWidget {
+  // Definición de las propiedades necesarias para el componente
+  final CaravanaModel caravana; // El modelo de datos de la vaca/animal
+  final VoidCallback onToggle;  // Acción para el checkbox de selección
+  final VoidCallback onDelete;  // Acción para eliminar el registro
+  final VoidCallback onModify;  // Acción para editar (el lápiz de Figma)
+
+  const CaravanaItem({
+    super.key,
+    required this.caravana,
+    required this.onToggle,
+    required this.onDelete,
+    required this.onModify,
+  });
+
+  /// Construye la interfaz visual de la tarjeta de la caravana.
+  /// 
+  /// Este método describe la jerarquía de widgets que componen el ítem:
+  /// 1. Un [Container] con borde lateral dinámico según el estado.
+  /// 2. Un [Row] principal que organiza el selector, la información y las acciones.
+  /// 3. Una [Column] central expandida para los datos de trazabilidad (GIA, ID, Fecha).
+  /// 4. Un [Column] de acciones laterales para estado y eliminación.
+  /// 
+  /// Retorna un [Widget] que responde visualmente a las propiedades del modelo [caravana].
+  @override
+  Widget build(BuildContext context) {
+    // Transforma la fecha del modelo en un String legible (Ej: 24-10-2023)
+    String fechaFormateada = DateFormat('dd-MM-yyyy').format(caravana.hf_lectura);
+    
+    // Transforma la hora del modelo. Nota: 'HH:mm' quitaría los segundos como en Figma
+    String horaFormateada = DateFormat('HH:mm:ss').format(caravana.hf_lectura);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12), // Espacio entre tarjetas
+      decoration: BoxDecoration(
+        color: AppTheme.surface, // Color de fondo del tema
+        borderRadius: BorderRadius.circular(12), // Bordes redondeados de la tarjeta
+        border: Border(
+          // Crea la línea lateral de color dinámica según el estado OK/Faltante
+          left: BorderSide(
+              color: caravana.esOk ? Colors.green : Colors.red, 
+              width: 5),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0), // Margen interno de la tarjeta
+        child: Row(
+          children: [
+            // Control de selección de la caravana
+            Checkbox(
+              value: caravana.seleccionada,
+              onChanged: (_) => onToggle(), // Llama al callback de selección
+              activeColor: AppTheme.primary,
+            ),
+            const SizedBox(width: 8), // Separación entre checkbox y texto
+            Expanded(
+              // Columna central que ocupa todo el espacio disponible
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, // Alinea texto a la izquierda
+                children: [
+                  Row(
+                    children: [
+                      _buildChip("GIA: ${caravana.gia}"), // Etiqueta del lote/GIA
+                      const SizedBox(width: 8),
+                      const Icon(Icons.schedule, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(horaFormateada,
+                          style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  // Número de caravana resaltado en monoespaciado para lectura técnica
+                  Text(caravana.caravana,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'monospace')),
+                  // Fecha de la lectura debajo del número
+                  Text(fechaFormateada,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+            ),
+            // Columna derecha para el estado y el botón de borrar
+            Column(
+              children: [
+                _buildStatusBadge(caravana.esOk), // Badge de OK o FALTANTE
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                  onPressed: onDelete, // Ejecuta la función de borrado
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget auxiliar para crear etiquetas pequeñas (Chips)
+  Widget _buildChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Text(label,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  // Widget auxiliar para el Badge de estado con colores dinámicos
+  Widget _buildStatusBadge(bool isOk) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isOk ? AppTheme.okBg : AppTheme.errorBg, // Color de fondo según estado
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        isOk ? "OK" : "FALTANTE",
+        style: TextStyle(
+            color: isOk ? AppTheme.okText : AppTheme.errorText, // Color de texto según estado
+            fontSize: 9,
+            fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'snig_handler.dart';
 import 'caravana_item.dart';

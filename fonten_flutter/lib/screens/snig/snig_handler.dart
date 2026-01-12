@@ -89,7 +89,12 @@ class SnigHandler extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleSeleccion(int index) {
+  /// Cambia el estado de seleccionada de la caravana en la lista filtrada.
+  ///
+  /// Este método se encarga de:
+  /// 1. Cambiar el valor de la propiedad [seleccionada] de la caravana en la lista filtrada.
+  /// 2. Notificar a la interfaz que los datos han cambiado.
+  void toggleSeleccion(int index) { //<!> Esto no tengo claro como funciona principalente en que momenot ago que aparesca el boton elminar
     _filteredCaravanas[index].seleccionada =
         !_filteredCaravanas[index].seleccionada;
     notifyListeners();

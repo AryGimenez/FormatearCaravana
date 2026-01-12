@@ -1,3 +1,4 @@
+// fonten_flutter/lib/screens/snig/snig_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'snig_handler.dart';
