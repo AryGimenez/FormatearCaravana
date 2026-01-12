@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/caravana_models.dart';
 import '../../core/theme/app_theme.dart';
 
 class CaravanaItem extends StatelessWidget {
-  final Caravana caravana;
+  final CaravanaModel caravana;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
 
@@ -15,9 +16,10 @@ class CaravanaItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Formatear la fecha
+    // Formatear la fecha y hora
     String fechaFormateada =
-        "${caravana.fecha.day.toString().padLeft(2, '0')}-${caravana.fecha.month.toString().padLeft(2, '0')}-${caravana.fecha.year}";
+        DateFormat('dd-MM-yyyy').format(caravana.hf_lectura);
+    String horaFormateada = DateFormat('HH:mm:ss').format(caravana.hf_lectura);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -45,19 +47,17 @@ class CaravanaItem extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      if (caravana.vid != null) ...[
-                        _buildChip("VID: ${caravana.vid}"),
-                        const SizedBox(width: 8),
-                      ],
+                      _buildChip("GIA: ${caravana.gia}"),
+                      const SizedBox(width: 8),
                       const Icon(Icons.schedule, size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
-                      Text(caravana.hora,
+                      Text(horaFormateada,
                           style: const TextStyle(
                               fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(caravana.eid,
+                  Text(caravana.caravana,
                       style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,

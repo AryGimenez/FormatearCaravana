@@ -1,120 +1,130 @@
-// fonten_flutter/lib/screens/snig/snig_handler.dart
 import 'package:flutter/material.dart';
 import '../../models/caravana_models.dart';
-import '../../services/csv_service.dart';
+import '../../services/api_service.dart';
 
 class SnigHandler extends ChangeNotifier {
-  final CsvService _csvService = CsvService();
-  /// Lista de caravanas cargadas desde el archivo CSV.
-  List<Caravana> _caravanas = [];
-  /// Lista de caravanas filtradas (para la UI).
-  List<Caravana> _filteredCaravanas = [];
+  final ApiService _apiService = ApiService();
+  //<!> Esto no se para que lo tngo aca
+  List<CaravanaModel> _filteredCaravanas = []; // Lista filtrada para la UI
   String _nroFormulario = "2680416";
   bool _isLoading = false;
+  String? _errorMessage; // Para mostrar mensajes emergentes (Snackbars)
+
+  SnigHandler() {
+    // Inicializar la lista filtrada con los datos del servicio
+    _filteredCaravanas = List.from(_apiService.caravanas);
+  }
 
   // Getters
-  List<Caravana> get caravanas => _caravanas;
+  List<CaravanaModel> get caravanas => _filteredCaravanas; //<!> Esto no lo tengo claro no entindo para qeu esta
   String get nroFormulario => _nroFormulario;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
-  int get totalEvaluados => _caravanas.length;
-  int get totalOk => _caravanas.where((c) => c.esOk).length;
-  int get totalFaltantes => _caravanas.where((c) => !c.esOk).length;
+  int get totalEvaluados => _apiService.caravanas.length;
+  int get totalOk => _apiService.caravanas.where((c) => c.esOk).length;
+  int get totalFaltantes => _apiService.caravanas.where((c) => !c.esOk).length;
+  int get selectedCount =>
+      _apiService.caravanas.where((c) => c.seleccionada).length;
 
   void setNroFormulario(String value) {
     _nroFormulario = value;
     notifyListeners();
   }
 
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  // <!> Aca me falta como cargar el archivo no voe que este por ningun lado
+  // Se que tengo que traerlo de snig_handler
   Future<void> cargarArchivoCsv() async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      final nuevas = await _csvService.pickAndParseCsv();
+      final nuevas = await _apiService.pickAndParseCsv();
       if (nuevas != null) {
-        _caravanas = nuevas;
-        _filteredCaravanas = List.from(_caravanas);
+        _apiService.clearCaravanas();
+        for (var c in nuevas) {
+          _apiService.addCaravana(c);
+        }
+        _filteredCaravanas = List.from(_apiService.caravanas);
       }
     } catch (e) {
-      // Aquí podrías manejar el error con un mensaje al usuario
-      print("Error al cargar CSV: $e");
+      _errorMessage = "Error al cargar CSV: $e";
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  void agregarCaravana(Caravana nueva) {
-    _caravanas.add(nueva);
-    _filteredCaravanas = List.from(_caravanas);
-    notifyListeners();
+  void agregarCaravana(CaravanaModel nueva) {
+    try {
+      _apiService.addCaravana(nueva);
+      _filteredCaravanas = List.from(_apiService.caravanas);
+      notifyListeners();
+    } catch (e) {
+      print(e); //<!> Esto deberia tener un menu emergente
+    }
   }
 
   void eliminarCaravana(int index) {
-    _caravanas.removeAt(index);
-    _filteredCaravanas = List.from(_caravanas);
-    notifyListeners();
+    // El index corresponde a la lista filtrada, debemos encontrar el objeto real
+    final caravanaAEliminar = _filteredCaravanas[index];
+    final realIndex = _apiService.caravanas.indexOf(caravanaAEliminar);
+    if (realIndex != -1) {
+      _apiService.removeCaravana(realIndex);
+      _filteredCaravanas.removeAt(index);
+      notifyListeners();
+    }
   }
 
   void eliminarSeleccionadas() {
-    _caravanas.removeWhere((c) => c.seleccionada);
-    _filteredCaravanas = List.from(_caravanas);
+    //<!> Aca deberia llamar a el metdo eliminar caravana ademas de app service
+    _apiService.caravanas.removeWhere((c) => c.seleccionada);
+    _filteredCaravanas = List.from(_apiService.caravanas);
     notifyListeners();
   }
 
   void toggleSeleccion(int index) {
-    _caravanas[index].seleccionada = !_caravanas[index].seleccionada;
+    _filteredCaravanas[index].seleccionada =
+        !_filteredCaravanas[index].seleccionada;
     notifyListeners();
   }
 
   /// Obtiene y sincroniza la lista de caravanas.
-  /// 
+  ///
   /// Este método se encarga de:
   /// 1. Activar el estado de carga [_isLoading].
   /// 2. Clonar la lista original [_caravanas] hacia la lista filtrada [_filteredCaravanas].
   /// 3. Notificar a la interfaz que los datos han cambiado.
-  /// 
-  /// [Nota]: En el futuro, aquí se debe implementar la lectura desde la base de datos 
+  ///
+  /// [Nota]: En el futuro, aquí se debe implementar la lectura desde la base de datos
   /// local o el procesamiento del archivo CSV del SNIG.
   Future<void> fetchCaravanas() async {
-    _isLoading = true; // Indica que se está cargando
-    // notifyListeners(); // No es necesario si usas FutureBuilder
+    _isLoading = true;
+    notifyListeners();
 
-    // Aquí podrías cargar de una DB local en el futuro
-    _filteredCaravanas = List.from(_caravanas);
+    // Actualizamos la lista filtrada desde la fuente de verdad (ApiService)
+    _filteredCaravanas = List.from(_apiService.caravanas);
+
     _isLoading = false;
     notifyListeners();
   }
 
   void filterCaravanas(String query) {
     if (query.isEmpty) {
-      _filteredCaravanas = List.from(_caravanas);
+      _filteredCaravanas = List.from(_apiService.caravanas);
     } else {
-      _filteredCaravanas = _caravanas.where((c) {
-        return c.eid.contains(query) || (c.vid?.contains(query) ?? false);
+      _filteredCaravanas = _apiService.caravanas.where((c) {
+        // En CaravanaModel usamos .caravana para el número de 15 dígitos
+        return c.caravana.contains(query);
       }).toList();
     }
     notifyListeners();
   }
 
-  // Ejemplo de carga inicial (opcional)
-  void cargarDatosEjemplo() {
-    _caravanas = [
-      Caravana(
-          eid: "858000051983708",
-          vid: "102",
-          hora: "11:23:09",
-          fecha: DateTime(2024, 7, 2),
-          esOk: true),
-      Caravana(
-          eid: "858000051489744",
-          vid: "114",
-          hora: "09:45:00",
-          fecha: DateTime(2024, 7, 2),
-          esOk: false),
-    ];
-    _filteredCaravanas = List.from(_caravanas);
-    notifyListeners();
-  }
 }

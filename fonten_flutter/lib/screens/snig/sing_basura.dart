@@ -5,6 +5,29 @@ import 'caravana_item.dart';
 import '../config_drawer/config_drawer.dart';
 import '../../core/theme/app_theme.dart';
 
+
+
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _onSearch,
+              decoration: InputDecoration(
+                hintText: 'Buscar por EID o Visual',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+            ),
+          ),
+
+
+
 class SnigScreen extends StatefulWidget {
   const SnigScreen({super.key});
 
