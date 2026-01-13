@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agregar Caravana - SNIG Connect</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1a511a",
+                        "primary-dark": "#143d14",
+                        "background-light": "#fafafa",
+                        "background-dark": "#18181b",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#27272a",
+                        "border-light": "#e5e5e5",
+                        "border-dark": "#3f3f46",
+                        "text-main": "#262626",
+                        "text-muted": "#666666",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                    spacing: {
+                        '18': '4.5rem',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .touch-target {
+            min-height: 56px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display antialiased overflow-hidden h-screen flex flex-col">
+<!-- Header -->
+<header class="flex-none flex items-center justify-between px-4 py-3 bg-background-light dark:bg-background-dark z-20">
+<!-- Empty left to balance the close button for visual centering -->
+<div class="w-12"></div>
+<h1 class="text-xl font-bold tracking-tight text-center text-text-main dark:text-white">
+            Agregar Caravana
+        </h1>
+<button aria-label="Close" class="w-12 h-12 flex items-center justify-end text-text-main dark:text-white hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-3xl font-bold">close</span>
+</button>
+</header>
+<!-- Main Content Area - Scrollable if content overflows, but designed to fit -->
+<main class="flex-1 flex flex-col relative overflow-y-auto no-scrollbar w-full max-w-lg mx-auto">
+<!-- Form Fields Section -->
+<div class="px-4 pt-2 pb-6 space-y-6 flex-1">
+<!-- EID Input (Primary Focus) -->
+<div class="space-y-2 group">
+<label class="flex items-center justify-between text-sm font-bold uppercase tracking-wider text-text-muted dark:text-gray-400">
+<span>EID (15 Dígitos)</span>
+<span class="material-symbols-outlined text-primary text-lg">qr_code_scanner</span>
+</label>
+<div class="relative">
+<!-- The input simulates focus because the custom keypad is "active" -->
+<input aria-label="Electronic ID" class="w-full bg-surface-light dark:bg-surface-dark text-text-main dark:text-white text-3xl font-medium p-4 h-20 rounded-xl border-2 border-primary ring-4 ring-primary/10 focus:outline-none placeholder-gray-300 dark:placeholder-gray-600 shadow-sm" placeholder="858 000..." readonly="" type="text" value="858 123 45"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-primary dark:text-green-300">
+<span class="material-symbols-outlined text-lg">check</span>
+</span>
+</div>
+</div>
+<p class="text-xs text-text-muted dark:text-gray-500 pl-1 font-medium">Lectura detectada vía Bluetooth</p>
+</div>
+<!-- VID Input -->
+<div class="space-y-2">
+<label class="block text-sm font-bold uppercase tracking-wider text-text-muted dark:text-gray-400">
+                    VID (Visual)
+                </label>
+<input aria-label="Visual Identifier" class="w-full bg-surface-light dark:bg-surface-dark text-text-main dark:text-white text-xl p-4 h-16 rounded-xl border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary shadow-sm" placeholder="A-123" type="text"/>
+</div>
+<!-- Date & Time Row -->
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="block text-sm font-bold uppercase tracking-wider text-text-muted dark:text-gray-400">
+                        Fecha
+                    </label>
+<div class="relative">
+<input class="w-full bg-surface-light dark:bg-surface-dark text-text-main dark:text-white text-lg font-medium p-4 h-16 rounded-xl border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary shadow-sm" readonly="" type="text" value="24/10/2023"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">calendar_today</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-bold uppercase tracking-wider text-text-muted dark:text-gray-400">
+                        Hora
+                    </label>
+<div class="relative">
+<input class="w-full bg-surface-light dark:bg-surface-dark text-text-main dark:text-white text-lg font-medium p-4 h-16 rounded-xl border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary shadow-sm" readonly="" type="text" value="14:30"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">schedule</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer Action & Keypad -->
+<div class="flex-none bg-background-light dark:bg-background-dark border-t border-border-light dark:border-border-dark shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-6 pt-2">
+<!-- Actions -->
+<div class="flex items-center gap-3 px-4 mb-4">
+<button class="flex-1 text-text-muted hover:text-text-main font-bold text-base h-14 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                    CANCELAR
+                </button>
+<button class="flex-[2] bg-primary hover:bg-primary-dark text-white font-bold text-lg tracking-wide h-14 rounded-lg shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span>CONFIRMAR</span>
+<span class="material-symbols-outlined text-xl">arrow_forward</span>
+</button>
+</div>
+<!-- Custom Numeric Keypad -->
+<div class="px-2 grid grid-cols-3 gap-2 max-w-lg mx-auto">
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">1</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">2</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">3</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">4</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">5</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">6</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">7</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">8</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">9</button>
+<button class="h-14 rounded-lg bg-gray-100 dark:bg-surface-dark/50 border border-transparent text-text-muted dark:text-gray-400 font-medium active:bg-gray-200 dark:active:bg-gray-600 transition-colors">.</button>
+<button class="h-14 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm text-2xl font-medium text-text-main dark:text-white active:bg-gray-100 dark:active:bg-gray-700 transition-colors">0</button>
+<button class="h-14 rounded-lg bg-gray-100 dark:bg-surface-dark/50 border border-transparent text-text-main dark:text-white flex items-center justify-center active:bg-gray-200 dark:active:bg-gray-600 transition-colors">
+<span class="material-symbols-outlined">backspace</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>
