@@ -26,9 +26,12 @@ abstract class BaseService {
   @protected
   List <CaravanaModel> listCaravanas = [];
 
-  List <CaravanaModel> get caravanas => listCaravanas;
+  List <CaravanaModel> get getListCaravanas => listCaravanas;
 
-/// Agrega una [pCaravana] a la colección actual.
+  // Gia Seleccionada para asiganr a las caravanas
+  String gia = ""; //<!> Capas esto solo tendria que traerlo de persistencia si cierro el progrma pero no lo tengo claro 
+
+  /// Agrega una [pCaravana] a la colección actual.
   /// 
   /// Si la caravana ya existe (basado en su EID):
   /// * Si [pAgregarSiNoExiste] es true, la agrega igualmente.
@@ -42,6 +45,7 @@ abstract class BaseService {
     bool xExiste = listCaravanas.any((c) => c.caravana == pCaravana.caravana);
     if (!xExiste || pAgregarSiNoExiste)
       listCaravanas.add(pCaravana);
+      
     
     if (xExiste) {
       throw CaravanaException("La caravana con EID ${pCaravana.caravana} ya existe.");

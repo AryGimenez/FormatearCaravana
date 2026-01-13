@@ -48,10 +48,11 @@ class ConfigDrawer extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: Colors.grey)),
                 const SizedBox(height: 8),
+                // Campo Gia a asignar -------- 
                 TextField(
-                  onChanged: (val) => handler.setNroFormulario(val),
+                  onChanged: (val) => handler.setGia(val),
                   decoration: InputDecoration(
-                    hintText: "Ej: 2680416",
+                    hintText: "Ej: C204416",
                     filled: true,
                     fillColor: Colors.white,
                     suffixIcon:

@@ -18,8 +18,8 @@ import '../../core/theme/app_theme.dart';
 ///
 /// Utiliza [CaravanaModel] para la provisión de datos y depende del [AppTheme] 
 /// para mantener la consistencia visual de la aplicación.
-class CaravanaItem extends StatelessWidget {
-  final CaravanaModel caravana;
+class CaravanaItem extends StatelessWidget { //<!> Restructar con el disenio de figma 
+  final CaravanaModel caravana; //<!> Cambiar por el modelo de datos
   final VoidCallback onToggle; // Cambia el estado de seleccionada
   final VoidCallback onDelete; // Elimina la caravana
   final VoidCallback onModify; // Modifica la caravana
@@ -74,6 +74,8 @@ class CaravanaItem extends StatelessWidget {
       child: Padding( // Define el padding interno del contenedor
         padding: const EdgeInsets.all(16.0), // Define el padding interno del contenedor
         child: Row( // Define la fila de widgets
+          
+          // Checklist Caravana ------
           children: [ // Define los widgets que componen la fila
             Checkbox( // Define el checkbox
               value: caravana.seleccionada, // Define el valor del checkbox sacando el valor de de CaravanaModel.seleccionada
@@ -84,35 +86,51 @@ class CaravanaItem extends StatelessWidget {
             Expanded( // Define el espacio entre el checkbox y el texto
               child: Column( // Define la columna de widgets
                 crossAxisAlignment: CrossAxisAlignment.start, // Define el alineamiento de los widgets
-                children: [
-                  Row(
-                    children: [
-                      _buildChip("GIA: ${caravana.gia}"),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.schedule, size: 14, color: Colors.grey),
+                children: [ // Define los widgets que componen la columna
+                  Row( // Define la fila de widgets
+                    // Gia ------
+                    children: [ // Define los widgets que componen la fila
+                      _buildChip("GIA: ${caravana.gia}"), // Define el chip de GIA
+                      const SizedBox(width: 8), // Define el espacio entre el chip y el icono
+                      const Icon(Icons.schedule, size: 14, color: Colors.grey), // Define el icono de fecha
                       const SizedBox(width: 4),
-                      Text(horaFormateada,
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.grey)),
+                      // Hora Lectura ------
+                      Text(horaFormateada, // Define el texto que se mostrará dentro del chip
+                          style: const TextStyle( // Define el estilo del texto
+                              fontSize: 12, // Define el tamaño del texto
+                              color: Colors.grey // Define el color del texto
+                            )
+                          ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(caravana.caravana,
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          fontFamily: 'monospace')),
-                  Text(fechaFormateada,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  const SizedBox(height: 4), // Define el espacio entre el chip y el texto
+                  // Numero de Caravana ------
+                  Text(caravana.caravana, // Define el texto que se mostrará dentro del chip
+                      style: const TextStyle( // Define el estilo del texto
+                          fontSize: 18, // Define el tamaño del texto
+                          fontWeight: FontWeight.w800, // Define el peso del texto
+                          fontFamily: 'monospace'// Define la fuente del texto
+                          ) 
+                      ),
+                  // Fecha Lectura ------
+                  Text(fechaFormateada, // Define el texto que se mostrará dentro del chip
+                      style: const TextStyle( // Define el estilo del texto
+                          fontSize: 12, // Define el tamaño del texto
+                          color: Colors.grey // Define el color del texto
+                        )
+                      ),
                 ],
               ),
             ),
-            Column(
-              children: [
-                _buildStatusBadge(caravana.esOk),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                  onPressed: onDelete,
+            Column( // Define la columna de widgets
+              // Acciones -----
+              children: [ // Define los widgets que componen la columna
+                // Estado de la caravana segun simulador OK o Faltante -----
+                _buildStatusBadge(caravana.esOk), // Define el chip de estado
+                // Boton de eliminacion -----
+                IconButton( // Define el boton de eliminacion
+                  icon: const Icon(Icons.delete_outline, color: Colors.grey), // Define el icono de eliminacion
+                  onPressed: onDelete, // Define la accion al presionar el boton de eliminacion
                 )
               ],
             )
@@ -122,32 +140,57 @@ class CaravanaItem extends StatelessWidget {
     );
   }
 
+  /// Construye un componente visual pequeño (Chip) para mostrar la guia de la lectrau
+  /// relacionado a esa caravana 
+  /// 
+  /// La mete en un marco para que sea mas visible
+  /// 
+  /// Parámetros:
+  /// * [label]: El texto que se mostrará dentro del chip.
+  /// 
+  /// Retorna un [Widget] que representa el chip con el texto proporcionado.
   Widget _buildChip(String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.grey[300]!),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Define el padding interno del contenedor
+      decoration: BoxDecoration( // Define el estilo del contenedor
+        color: Colors.grey[100], // Define el color de fondo
+        borderRadius: BorderRadius.circular(4), // Define el radio de las esquinas
+        border: Border.all(color: Colors.grey[300]!), // Define el borde del contenedor
       ),
-      child: Text(label,
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+      child: Text(label, // Define el texto que se mostrará dentro del chip
+          style: const TextStyle(
+            fontSize: 10, // Define el tamaño de la fuente
+            fontWeight: FontWeight.bold // Define el peso de la fuente
+            )),
     );
   }
 
+  /// Construye un componente visual pequeño (Chip) para mostrar si la caravana 
+  /// esta o no en el simulador
+  /// 
+  /// Parámetros:
+  /// * [isOk]: Un booleano que indica si el estado es correcto o no.
+  /// 
+  /// Retorna un [Widget] que representa el chip con el texto proporcionado.
   Widget _buildStatusBadge(bool isOk) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: isOk ? AppTheme.okBg : AppTheme.errorBg,
-        borderRadius: BorderRadius.circular(20),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Define el padding interno del contenedor
+      decoration: BoxDecoration( // Define el estilo del contenedor
+        color: isOk ? // Define el color de fondo
+          AppTheme.okBg : // Verde claro si la caravana esta en el simulador
+          AppTheme.errorBg, // Rojo claro si la caravana no esta en el simulador
+        borderRadius: BorderRadius.circular(20), // Define el radio de las esquinas
       ),
-      child: Text(
-        isOk ? "OK" : "FALTANTE",
-        style: TextStyle(
-            color: isOk ? AppTheme.okText : AppTheme.errorText,
-            fontSize: 9,
-            fontWeight: FontWeight.bold),
+      child: Text( // Define el texto que se mostrará dentro del chip
+        isOk ? // Define el texto que se mostrará dentro del chip
+          "OK" : // Si la caravana esta en el simulador
+          "FALTANTE", // Si la caravana no esta en el simulador
+        style: TextStyle( // Define el estilo del texto
+            color: isOk ?  // Define el color del texto
+            AppTheme.okText : // Verde oscuro si la caravana esta en el simulador
+            AppTheme.errorText, // Rojo oscuro si la caravana no esta en el simulador
+            fontSize: 9, // Define el tamaño del texto
+            fontWeight: FontWeight.bold), // Define el peso del texto
       ),
     );
   }

@@ -1,40 +1,64 @@
+// fonten_flutter/lib/screens/snig/snig_handler.dart
+
 import 'package:flutter/material.dart';
 import '../../models/caravana_models.dart';
 import '../../services/api_service.dart';
 
+/// Clase encargada de gestionar la lógica de negocio y el estado para el Formulario
+/// prinsipal de la aplicacion snig.
+/// 
+/// Centraliza el procesamiento de caravanas, validaciones de formato uruguayo
+/// y la notificación de cambios a la UI mediante el patrón Observer.
+/// La clase extiende de ChangeNotifier para permitir que los Widgets 
+/// se reconstruyan automáticamente cuando los datos cambien.
 class SnigHandler extends ChangeNotifier {
+  /// Instancia del ApiService para acceder a los datos de las caravanas.
   final ApiService _apiService = ApiService();
-  //<!> Esto no se para que lo tngo aca
-  List<CaravanaModel> _filteredCaravanas = []; // Lista filtrada para la UI
-  String _nroFormulario = "2680416";
+  /// Lista para filtrar las caravanas que se muestran en la UI.
+  List<CaravanaModel> _filteredCaravanas = []; 
+  /// Se encarga de indicar si se esta cargando datos.
   bool _isLoading = false;
-  String? _errorMessage; // Para mostrar mensajes emergentes (Snackbars)
+  /// Se encarga de indicar si se ha producido un error. Lo utiliso para mostrar 
+  /// mensaje de erro 
+  String? _errorMessage; 
 
+  /// Constructor de la clase SnigHandler.
+  /// 
+  /// Inicializa la lista filtrada con los datos del servicio.
   SnigHandler() {
-    // Inicializar la lista filtrada con los datos del servicio
-    _filteredCaravanas = List.from(_apiService.caravanas);
+    _filteredCaravanas = List.from(_apiService.getListCaravanas); // Inicializar la lista filtrada con los datos del servicio
   }
 
-  // Getters
-  List<CaravanaModel> get caravanas => _filteredCaravanas; //<!> Esto no lo tengo claro no entindo para qeu esta
-  String get nroFormulario => _nroFormulario;
+  /// Getters Caravanas Filtradas
+  List<CaravanaModel> get caravanasFiltradas => _filteredCaravanas; 
+  /// Getters de isLoading
   bool get isLoading => _isLoading;
+  /// Getters de errorMessage
   String? get errorMessage => _errorMessage;
 
-  int get totalEvaluados => _apiService.caravanas.length;
-  int get totalOk => _apiService.caravanas.where((c) => c.esOk).length;
-  int get totalFaltantes => _apiService.caravanas.where((c) => !c.esOk).length;
-  int get selectedCount =>
-      _apiService.caravanas.where((c) => c.seleccionada).length;
+  // <!> Aca podria crear una variable de lista caravanas y usarla para pasar los parametros 
+  /// Getters de totalCaravanas
+  int get totalCaravanas => _apiService.getListCaravanas.length;
+  /// Getters de totalCaravanasOk, esto quiere desir las caravanas que se en cuentran en el 
+  /// simulador cargado.
+  int get totalCaravanasOk => _apiService.getListCaravanas.where((c) => c.esOk).length;
+  /// Getters de totalCaravanasFaltantes, esto quiere desir las caravanas que 
+  /// no se encuentran en el simulador cargado. 
+  int get totalCaravanasFaltantes => _apiService.getListCaravanas.where((c) => !c.esOk).length;
+  /// Getters de totalCaravanasSeleccionadas, esto quiere desir las caravanas que 
+  /// se seleccionaron en la UI.
+  int get totalCaravanasSeleccionadas =>
+      _apiService.getListCaravanas.where((c) => c.seleccionada).length;
 
-  void setNroFormulario(String value) {
-    _nroFormulario = value;
-    notifyListeners();
-  }
-
+  /// Elimina el Error 
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  void setGia(String gia){
+    _apiService.gia = gia;
+    // notifyListeners(); //<!> Sacar si no es necesario
   }
 
   // <!> Aca me falta como cargar el archivo no voe que este por ningun lado
@@ -51,7 +75,7 @@ class SnigHandler extends ChangeNotifier {
         for (var c in nuevas) {
           _apiService.addCaravana(c);
         }
-        _filteredCaravanas = List.from(_apiService.caravanas);
+        _filteredCaravanas = List.from(_apiService.getListCaravanas);
       }
     } catch (e) {
       _errorMessage = "Error al cargar CSV: $e";
@@ -64,7 +88,7 @@ class SnigHandler extends ChangeNotifier {
   void agregarCaravana(CaravanaModel nueva) {
     try {
       _apiService.addCaravana(nueva);
-      _filteredCaravanas = List.from(_apiService.caravanas);
+      _filteredCaravanas = List.from(_apiService.getListCaravanas);
       notifyListeners();
     } catch (e) {
       print(e); //<!> Esto deberia tener un menu emergente
@@ -74,7 +98,19 @@ class SnigHandler extends ChangeNotifier {
   void eliminarCaravana(int index) {
     // El index corresponde a la lista filtrada, debemos encontrar el objeto real
     final caravanaAEliminar = _filteredCaravanas[index];
-    final realIndex = _apiService.caravanas.indexOf(caravanaAEliminar);
+    final realIndex = _apiService.getListCaravanas.indexOf(caravanaAEliminar);
+    if (realIndex != -1) {
+      _apiService.removeCaravana(realIndex);
+      _filteredCaravanas.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  //<!> Aca iria la funcion modificar caravana disparada por el CardItem
+  // Tengo que crear una interfas que me de un menu para esta accion
+  void modificarCaravana(int index) { 
+    final caravanaAEliminar = _filteredCaravanas[index];
+    final realIndex = _apiService.getListCaravanas.indexOf(caravanaAEliminar);
     if (realIndex != -1) {
       _apiService.removeCaravana(realIndex);
       _filteredCaravanas.removeAt(index);
@@ -84,8 +120,8 @@ class SnigHandler extends ChangeNotifier {
 
   void eliminarSeleccionadas() {
     //<!> Aca deberia llamar a el metdo eliminar caravana ademas de app service
-    _apiService.caravanas.removeWhere((c) => c.seleccionada);
-    _filteredCaravanas = List.from(_apiService.caravanas);
+    _apiService.getListCaravanas.removeWhere((c) => c.seleccionada);
+    _filteredCaravanas = List.from(_apiService.getListCaravanas);
     notifyListeners();
   }
 
@@ -114,7 +150,7 @@ class SnigHandler extends ChangeNotifier {
     notifyListeners();
 
     // Actualizamos la lista filtrada desde la fuente de verdad (ApiService)
-    _filteredCaravanas = List.from(_apiService.caravanas);
+    _filteredCaravanas = List.from(_apiService.getListCaravanas);
 
     _isLoading = false;
     notifyListeners();
@@ -122,9 +158,9 @@ class SnigHandler extends ChangeNotifier {
 
   void filterCaravanas(String query) {
     if (query.isEmpty) {
-      _filteredCaravanas = List.from(_apiService.caravanas);
+      _filteredCaravanas = List.from(_apiService.getListCaravanas);
     } else {
-      _filteredCaravanas = _apiService.caravanas.where((c) {
+      _filteredCaravanas = _apiService.getListCaravanas.where((c) {
         // En CaravanaModel usamos .caravana para el número de 15 dígitos
         return c.caravana.contains(query);
       }).toList();

@@ -37,37 +37,31 @@ class _SnigScreenState extends State<SnigScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final handler = Provider.of<SnigHandler>(context);
+    final handler = Provider.of<SnigHandler>(context); // Obtiene el handler usando Provider lo que permite acceder a los datos del handler desde cualquier lugar de la app.
 
-    // Escuchar errores y mostrar Snackbar
-    if (handler.errorMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(handler.errorMessage!),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
+    // Escucha errores y muestra Snackbar un menu inferior notificando al usuario
+    // que a ocurrido un error.
+    if (handler.errorMessage != null) { // Si hay un error
+      WidgetsBinding.instance.addPostFrameCallback((_) { // Asegura que el snackbar se muestre despues de que el arbol de widgets se haya construido
+        ScaffoldMessenger.of(context).showSnackBar(// Muestra el snackbar
+          SnackBar( // Muestra el snackbar
+            content: Text(handler.errorMessage!), // Muestra el mensaje de error
+            backgroundColor: Colors.red, // Color del snackbar
+            behavior: SnackBarBehavior.floating, // Muestra el snackbar como un menu inferior
           ),
         );
-        handler.clearError();
+        handler.clearError(); // Limpia el error
       });
     }
 
-    return Scaffold(
+    return Scaffold( // Muestra la pantalla
       // 1. EL MENÚ LATERAL
       drawer: const ConfigDrawer(),
 
       // 2. LA BARRA SUPERIOR
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("SNIG Connect",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text("Lote #${handler.nroFormulario}",
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          ],
-        ),
+        title: const Text("SNIG Connect",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(icon: const Icon(Icons.share), onPressed: () {}),
         ],
@@ -103,28 +97,29 @@ class _SnigScreenState extends State<SnigScreen> {
 
           if (!handler.isLoading)
             Expanded(
-              child: handler.caravanas.isEmpty
+              child: handler.caravanasFiltradas.isEmpty
                   ? const Center(
                       child: Text("Carga un archivo desde el menú lateral"))
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
-                      itemCount: handler.caravanas.length,
+                      itemCount: handler.caravanasFiltradas.length,
                       itemBuilder: (context, index) {
                         return CaravanaItem(
-                          caravana: handler.caravanas[index],
+                          caravana: handler.caravanasFiltradas[index],
                           onToggle: () => handler.toggleSeleccion(index),
                           onDelete: () => handler.eliminarCaravana(index),
+                          onModify: () => handler.modificarCaravana(index),
                         );
                       },
                     ),
             ),
 
-          // Botones de Acción (Solo aparecen si hay seleccionados)
-          if (handler.selectedCount > 0) _buildActionButtons(handler),
+          // Botones eliminar Caravanas Seleccionadas (Solo aparecen si hay seleccionados)
+          if (handler.totalCaravanasSeleccionadas > 0) _buildActionButtons(handler),
         ],
       ),
 
-      // 4. BOTÓN FLOTANTE
+      // 4. BOTÓN FLOTANTE - AGREGAR NUEVA CARAVANA <!> Tengo que arreglarlo y implementar el mentodo cuando termine la interfas 
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add, color: Colors.white),
@@ -143,10 +138,11 @@ class _SnigScreenState extends State<SnigScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStat("Evaluados", "${handler.totalEvaluados}"),
-          _buildStat("Leídos", "${handler.totalOk}", color: Colors.green),
-          _buildStat("Faltantes", "${handler.totalFaltantes}",
-              color: Colors.red),
+          _buildStat("Todos", "${handler.totalCaravanas}"),
+          _buildStat("Estan en Simulador", "${handler.totalCaravanasOk}", 
+            color: Colors.green),
+          _buildStat("Faltan en Simulador", "${handler.totalCaravanasFaltantes}",
+            color: Colors.red),
         ],
       ),
     );
@@ -173,11 +169,11 @@ class _SnigScreenState extends State<SnigScreen> {
           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
       child: Row(
         children: [
-          Expanded(
+          Expanded(  //<!> Boton elminiar lo seleccionado arreglar 
             child: ElevatedButton.icon(
               onPressed: () => handler.eliminarSeleccionadas(),
               icon: const Icon(Icons.delete, color: Colors.white),
-              label: Text("ELIMINAR (${handler.selectedCount})",
+              label: Text("ELIMINAR (${handler.totalCaravanasSeleccionadas})",
                   style: const TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
