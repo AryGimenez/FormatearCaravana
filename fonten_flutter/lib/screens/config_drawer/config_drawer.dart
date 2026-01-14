@@ -41,15 +41,15 @@ class ConfigDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                // Campo Número de Formulario
+                // Número de Formulario ---
                 const Text("NÚMERO DE FORMULARIO *",
                     style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey)),
                 const SizedBox(height: 8),
-                // Campo Gia a asignar -------- 
-                TextField(
+                // Gia a asignar --------  
+                TextField( //<!> Cambiar de color mas claro 
                   onChanged: (val) => handler.setGia(val),
                   decoration: InputDecoration(
                     hintText: "Ej: C204416",
@@ -64,7 +64,7 @@ class ConfigDrawer extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 25), 
 
                 // Botones de Carga (CSV / PDF)
                 _buildActionButton(

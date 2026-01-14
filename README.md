@@ -75,3 +75,12 @@ Recuerda reemplazar <tu-usuario> y <nombre-del-repositorio> con la información 
 
 ## Tambien Esta pensado para tranformar de el formato de caravanas SVG Para el lector trutest https://latam.tru-test.com/
 
+
+# probar en el dispositivo fijo 
+flutter run --release -d R83YA0W74KR
+
+# Probar en el navegador
+flutter run -d chrome
+
+
+

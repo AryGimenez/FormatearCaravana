@@ -98,52 +98,63 @@ mixin CsvService on BaseService {
 
   /// Abre el selector de archivos y parsea el CSV seleccionado
   ///
-  /// Abre el selector de archivos y parsea el CSV seleccionado
+  /// Abre el selector de archivos del sistema para cargar un CSV y transformarlo en modelos de Caravana.
+  /// 
+  /// Retorna una lista de [CaravanaModel] si el proceso es exitoso, o [null] si el usuario cancela.
+  /// Lanza una excepción si ocurre un error durante la lectura o el parseo.
   Future<List<CaravanaModel>?> pickAndParseCsv() async {
     try {
+
+      // Llama a la interfaz del sistema para seleccionar un archivo
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['csv'],
+        type: FileType.custom, // Restringe la selección a tipos específicos
+        allowedExtensions: ['csv'], // Solo permite archivos con extensión .csv
       );
 
-      if (result != null) {
-        final file = File(result.files.single.path!);
-        final input = file.openRead();
-        final fields = await input
-            .transform(utf8.decoder)
-            .transform(const CsvToListConverter())
-            .toList();
+      if (result != null) { // Si el usuario no canceló la selección (result no es nulo)
+        final file = File(result.files.single.path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
+        final input = file.openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
+        
+        final fields = await input  // Pipeline de transformación:
+            .transform(utf8.decoder) // Decodifica los bytes a texto UTF-8
+            .transform(const CsvToListConverter()) //Convierte el texto plano a una estructura de Listas (filas y columnas)
+            .toList(); //Convierte el Stream en una lista final de datos crudos
 
-        return _mapFieldsToCaravanas(fields);
+        return _mapFieldsToCaravanas(fields); // Envía los datos crudos al mapeador para convertirlos en objetos CaravanaModel
       }
     } catch (e) {
-      print("Error parseando CSV: $e");
-      rethrow;
+      //<!> Aca tendria que armar un log para pasarlo a un log sentralizado
+      print("Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
     }
-    return null;
+    return null; // Si el usuario cancela la selección, retorna nulo
   }
 
+/// Transforma los datos crudos del CSV (listas de listas) en una lista de objetos [CaravanaModel].
+/// 
+/// Maneja la detección de cabeceras, el parseo de fechas y la asignación de valores 
+/// por defecto para asegurar que la App no falle ante datos incompletos.
   List<CaravanaModel> _mapFieldsToCaravanas(List<List<dynamic>> fields) {
     List<CaravanaModel> caravanas = [];
 
-    // Saltamos la cabecera si existe
-    int startIndex = 0;
-    if (fields.isNotEmpty && fields[0].isNotEmpty) {
-      String firstVal = fields[0][0].toString();
-      if (firstVal.toLowerCase().contains("eid") || firstVal.isEmpty) {
-        startIndex = 1;
+    int startIndex = 0; // Determina si la primera fila es una cabecera para ignorarla
+    if (fields.isNotEmpty && fields[0].isNotEmpty) { // Si el archivo no está vacío y tiene al menos una fila
+      String firstVal = fields[0][0].toString(); 
+      if (firstVal.toLowerCase().contains("eid") || firstVal.isEmpty) { // Si contiene "eid" (común en Tru-Test) o está vacío, empezamos desde la fila 1
+        startIndex = 1; // <!> Creo que aca deberia corroborar que el formato sea el correcto si no salir porque agarre algo mal 
+        // <!> Para eso deberia prosesar la cabesera EID,VID,Date,Time,Custom
       }
     }
 
-    for (var i = startIndex; i < fields.length; i++) {
-      final row = fields[i];
-      if (row.length >= 1) {
+    
+    for (var i = startIndex; i < fields.length; i++) { // Recorre cada fila del CSV a partir del índice definido
+      final row = fields[i]; // Obtiene la fila actual
+      if (row.length >= 1) { // Si la fila tiene al menos un valor
         // Formato Tru-Test esperado: EID, VID, Date, Time, Custom
-        String eid = row[0].toString();
+        String xNumCaravana = row[0].toString();
         // String? vid = row.length > 1 ? row[1].toString() : null; // El nuevo modelo no tiene VID
-        String dateStr = row.length > 2 ? row[2].toString() : "";
-        String timeStr = row.length > 3 ? row[3].toString() : "00:00:00";
-        String customStr = row.length > 4
+        String xFecha = row.length > 2 ? row[2].toString() : "";
+        String xHora = row.length > 3 ? row[3].toString() : "00:00:00";
+        String xGia = row.length > 4
             ? row[4].toString()
             : ""; // Usaremos esto para 'gia' si está vacío
 
