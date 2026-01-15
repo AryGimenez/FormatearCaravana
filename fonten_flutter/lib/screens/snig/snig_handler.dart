@@ -66,16 +66,19 @@ class SnigHandler extends ChangeNotifier {
   Future<void> cargarArchivoCsv() async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
-
+    notifyListeners(); //  // 1. Solo notificamos que empezó a cargar (para el spinner)
+ 
     try {
       final nuevas = await _apiService.pickAndParseCsv();
-      if (nuevas != null) {
+      if (nuevas != null && nuevas.isNotEmpty) {
         _apiService.clearCaravanas();
+
+        // _apiService.addCaravana(pCaravana)
+
         for (var c in nuevas) {
           _apiService.addCaravana(c);
         }
-        _filteredCaravanas = List.from(_apiService.getListCaravanas);
+        _filteredCaravanas = _apiService.getListCaravanas;
       }
     } catch (e) {
       _errorMessage = "Error al cargar CSV: $e";

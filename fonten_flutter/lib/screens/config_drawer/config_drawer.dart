@@ -1,3 +1,5 @@
+// fonten_flutter\lib\screens\config_drawer\config_drawer.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../snig/snig_handler.dart';
@@ -66,13 +68,14 @@ class ConfigDrawer extends StatelessWidget {
 
                 const SizedBox(height: 25), 
 
-                // Botones de Carga (CSV / PDF)
+                // Boton de Carga (CSV) ----
                 _buildActionButton(
                   label: "CARGAR CSV",
                   sub: "Importar lista de animales",
                   icon: Icons.table_view,
                   onTap: () => handler.cargarArchivoCsv(),
                 ),
+                // Boton de Carga (PDF) ----
                 const SizedBox(height: 12),
                 _buildActionButton(
                   label: "CARGAR PDF",

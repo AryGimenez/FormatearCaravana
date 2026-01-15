@@ -14,6 +14,7 @@ class CaravanaException implements Exception {
 /// Excepción personalizada para errores en la importación masiva.
 class ImportException implements Exception {
   final String message;
+  /// Carabans duplicadas para mandar en la excepcion (El error)
   final List<CaravanaModel> caravanasDuplicadas; // Lista de IDs que ya existían
 
   ImportException(this.message, {this.caravanasDuplicadas = const []});

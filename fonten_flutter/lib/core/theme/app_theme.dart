@@ -22,7 +22,7 @@ class AppTheme {
         error: errorText,
       ),
       // Estilo de las tarjetas (Bordes redondeados y sombra suave)
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: surface,

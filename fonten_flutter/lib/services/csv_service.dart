@@ -1,9 +1,11 @@
+// fonten_flutter\lib\services\csv_service.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fonten_flutter/services/base_service.dart';
 import '../models/caravana_models.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // Para detectar si es Web
 
 enum DuplicadosStrategy {
   agregarTodos, // Opción 1: Agrega duplicados y no duplicados
@@ -99,62 +101,93 @@ mixin CsvService on BaseService {
   /// Abre el selector de archivos y parsea el CSV seleccionado
   ///
   /// Abre el selector de archivos del sistema para cargar un CSV y transformarlo en modelos de Caravana.
-  /// 
+  ///
   /// Retorna una lista de [CaravanaModel] si el proceso es exitoso, o [null] si el usuario cancela.
   /// Lanza una excepción si ocurre un error durante la lectura o el parseo.
   Future<List<CaravanaModel>?> pickAndParseCsv() async {
     try {
-
       // Llama a la interfaz del sistema para seleccionar un archivo
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom, // Restringe la selección a tipos específicos
         allowedExtensions: ['csv'], // Solo permite archivos con extensión .csv
+        withData:
+            true, // En Web no se puede acceder a la ruta del archivo, así que pedimos los datos crudos directamente
       );
 
-      if (result != null) { // Si el usuario no canceló la selección (result no es nulo)
-        final file = File(result.files.single.path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
-        final input = file.openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
-        
-        final fields = await input  // Pipeline de transformación:
+      if (result != null) {
+        // Si el usuario no canceló la selección (result no es nulo)
+
+        List<List<dynamic>>
+            fields; // Lista que almacenará los datos crudos del CSV
+
+        if (kIsWeb) {
+          // Si la aplicación se está ejecutando en un navegador web
+          // Lógica para WEB: Usamos los bytes directamente
+          final bytes = result.files.single.bytes!;
+          final csvString = utf8.decode(bytes);
+          fields = const CsvToListConverter().convert(csvString);
+        } else {
+          // Lógica para Desktop/Mobile
+        }
+        final file = File(result.files.single
+            .path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
+        final input = file
+            .openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
+
+        final fields = await input // Pipeline de transformación:
             .transform(utf8.decoder) // Decodifica los bytes a texto UTF-8
-            .transform(const CsvToListConverter()) //Convierte el texto plano a una estructura de Listas (filas y columnas)
+            .transform(
+                const CsvToListConverter()) //Convierte el texto plano a una estructura de Listas (filas y columnas)
             .toList(); //Convierte el Stream en una lista final de datos crudos
 
-        return _mapFieldsToCaravanas(fields); // Envía los datos crudos al mapeador para convertirlos en objetos CaravanaModel
+        return _mapFieldsToCaravanas(
+            fields); // Envía los datos crudos al mapeador para convertirlos en objetos CaravanaModel
       }
     } catch (e) {
       //<!> Aca tendria que armar un log para pasarlo a un log sentralizado
-      print("Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
+      print(
+          "Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
     }
     return null; // Si el usuario cancela la selección, retorna nulo
   }
 
-/// Transforma los datos crudos del CSV (listas de listas) en una lista de objetos [CaravanaModel].
-/// 
-/// Maneja la detección de cabeceras, el parseo de fechas y la asignación de valores 
-/// por defecto para asegurar que la App no falle ante datos incompletos.
+  /// Transforma los datos crudos del CSV (listas de listas) en una lista de objetos [CaravanaModel].
+  ///
+  /// Maneja la detección de cabeceras, el parseo de fechas y la asignación de valores
+  /// por defecto para asegurar que la App no falle ante datos incompletos.
   List<CaravanaModel> _mapFieldsToCaravanas(List<List<dynamic>> fields) {
     List<CaravanaModel> caravanas = [];
 
-    int startIndex = 0; // Determina si la primera fila es una cabecera para ignorarla
-    if (fields.isNotEmpty && fields[0].isNotEmpty) { // Si el archivo no está vacío y tiene al menos una fila
-      String firstVal = fields[0][0].toString(); 
-      if (firstVal.toLowerCase().contains("eid") || firstVal.isEmpty) { // Si contiene "eid" (común en Tru-Test) o está vacío, empezamos desde la fila 1
-        startIndex = 1; // <!> Creo que aca deberia corroborar que el formato sea el correcto si no salir porque agarre algo mal 
+    int startIndex =
+        0; // Determina si la primera fila es una cabecera para ignorarla
+    if (fields.isNotEmpty && fields[0].isNotEmpty) {
+      // Si el archivo no está vacío y tiene al menos una fila
+      String firstVal = fields[0][0].toString();
+      if (firstVal.toLowerCase().contains("eid") || firstVal.isEmpty) {
+        // Si contiene "eid" (común en Tru-Test) o está vacío, empezamos desde la fila 1
+        startIndex =
+            1; // <!> Creo que aca deberia corroborar que el formato sea el correcto si no salir porque agarre algo mal
         // <!> Para eso deberia prosesar la cabesera EID,VID,Date,Time,Custom
       }
     }
 
-    
-    for (var i = startIndex; i < fields.length; i++) { // Recorre cada fila del CSV a partir del índice definido
+    for (var i = startIndex; i < fields.length; i++) {
+      // Recorre cada fila del CSV a partir del índice definido
       final row = fields[i]; // Obtiene la fila actual
-      if (row.length >= 1) { // Si la fila tiene al menos un valor
+      if (row.length >= 1) {
+        // Si la fila tiene al menos un valor
         // Formato Tru-Test esperado: EID, VID, Date, Time, Custom
         String xNumCaravana = row[0].toString();
         // String? vid = row.length > 1 ? row[1].toString() : null; // El nuevo modelo no tiene VID
-        String xFecha = row.length > 2 ? row[2].toString() : ""; // Fecha en formato dd/MM/yyyy
-        String xHora = row.length > 3 ? row[3].toString() : "00:00:00"; // Hora en formato HH:mm:ss
-        String xGia = row.length > 4 ? row[4].toString(): ""; // Usaremos esto para 'gia' si está vacío
+        String xFecha = row.length > 2
+            ? row[2].toString()
+            : ""; // Fecha en formato dd/MM/yyyy
+        String xHora = row.length > 3
+            ? row[3].toString()
+            : "00:00:00"; // Hora en formato HH:mm:ss
+        String xGia = row.length > 4
+            ? row[4].toString()
+            : ""; // Usaremos esto para 'gia' si está vacío
 
         // Parsea la fecha
         DateTime fecha;
@@ -163,14 +196,15 @@ mixin CsvService on BaseService {
         } catch (_) {
           fecha = DateTime.now();
         }
-        //<!> Aca tengo que determinar si la caravana esta repetido que ago 
-        caravanas.add(CaravanaModel( // Agrega el modelo a la lista
-          caravana: xNumCaravana,// Numero de caravana
-          hf_lectura: fecha,// Fecha y hora de la lectura
-          gia: xGia,// GIA
+        //<!> Aca tengo que determinar si la caravana esta repetido que ago
+        caravanas.add(CaravanaModel(
+          // Agrega el modelo a la lista
+          caravana: xNumCaravana, // Numero de caravana
+          hf_lectura: fecha, // Fecha y hora de la lectura
+          gia: xGia, // GIA
         ));
-      }// Fin if
-    }// Fin for
+      } // Fin if
+    } // Fin for
     return caravanas;
   }
 }
