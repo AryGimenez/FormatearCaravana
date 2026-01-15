@@ -152,27 +152,25 @@ mixin CsvService on BaseService {
         // Formato Tru-Test esperado: EID, VID, Date, Time, Custom
         String xNumCaravana = row[0].toString();
         // String? vid = row.length > 1 ? row[1].toString() : null; // El nuevo modelo no tiene VID
-        String xFecha = row.length > 2 ? row[2].toString() : "";
-        String xHora = row.length > 3 ? row[3].toString() : "00:00:00";
-        String xGia = row.length > 4
-            ? row[4].toString()
-            : ""; // Usaremos esto para 'gia' si está vacío
+        String xFecha = row.length > 2 ? row[2].toString() : ""; // Fecha en formato dd/MM/yyyy
+        String xHora = row.length > 3 ? row[3].toString() : "00:00:00"; // Hora en formato HH:mm:ss
+        String xGia = row.length > 4 ? row[4].toString(): ""; // Usaremos esto para 'gia' si está vacío
 
         // Parsea la fecha
         DateTime fecha;
         try {
-          fecha = DateTime.parse("$dateStr $timeStr");
+          fecha = DateTime.parse("$xFecha $xHora");
         } catch (_) {
           fecha = DateTime.now();
         }
-
-        caravanas.add(CaravanaModel(
-          caravana: eid,
-          hf_lectura: fecha,
-          gia: customStr.isEmpty ? "C00000" : customStr,
+        //<!> Aca tengo que determinar si la caravana esta repetido que ago 
+        caravanas.add(CaravanaModel( // Agrega el modelo a la lista
+          caravana: xNumCaravana,// Numero de caravana
+          hf_lectura: fecha,// Fecha y hora de la lectura
+          gia: xGia,// GIA
         ));
-      }
-    }
+      }// Fin if
+    }// Fin for
     return caravanas;
   }
 }
