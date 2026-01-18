@@ -15,7 +15,7 @@ class CaravanaModel {
     required this.hf_lectura,
     required this.gia,
     this.seleccionada = false,
-    this.esOk = false
+    this.esOk = true
   });
 
   // Este método creará el formato [|A000...|] que pide el SNIG

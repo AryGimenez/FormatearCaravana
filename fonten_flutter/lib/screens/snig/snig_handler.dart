@@ -66,16 +66,18 @@ class SnigHandler extends ChangeNotifier {
   Future<void> cargarArchivoCsv() async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners(); //  // 1. Solo notificamos que empezó a cargar (para el spinner)
+    notifyListeners(); // Solo notificamos que empezó a cargar (para el spinner)
  
     try {
-      final nuevas = await _apiService.pickAndParseCsv();
+      final nuevas = await _apiService.pickAndParseCsv(); // Trae el archivo csv
       if (nuevas != null && nuevas.isNotEmpty) {
         _apiService.clearCaravanas();
 
         // _apiService.addCaravana(pCaravana)
 
         for (var c in nuevas) {
+          // <!> Aca deberia pasar la lista entera y preguntar si quiero cargar o no las caravans repetidsas 
+          // <!> y trabajr con esas ecepciones 
           _apiService.addCaravana(c);
         }
         _filteredCaravanas = _apiService.getListCaravanas;

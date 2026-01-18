@@ -1,11 +1,11 @@
-// fonten_flutter\lib\services\csv_service.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fonten_flutter/services/base_service.dart';
 import '../models/caravana_models.dart';
-import 'package:flutter/foundation.dart' show kIsWeb; // Para detectar si es Web
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 enum DuplicadosStrategy {
   agregarTodos, // Opción 1: Agrega duplicados y no duplicados
@@ -110,43 +110,34 @@ mixin CsvService on BaseService {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom, // Restringe la selección a tipos específicos
         allowedExtensions: ['csv'], // Solo permite archivos con extensión .csv
-        withData:
-            true, // En Web no se puede acceder a la ruta del archivo, así que pedimos los datos crudos directamente
+        withData: true, // Indica que queremos los datos del archivo, se utiliza para web
       );
 
-      if (result != null) {
-        // Si el usuario no canceló la selección (result no es nulo)
+      if (result != null) {// Si el usuario no canceló la selección (result no es nulo)
 
-        List<List<dynamic>>
-            fields; // Lista que almacenará los datos crudos del CSV
+        List<List<dynamic>> fields; // Lista de listas que contendrá los datos del CSV
 
-        if (kIsWeb) {
-          // Si la aplicación se está ejecutando en un navegador web
+        if (kIsWeb) { // Si es web no se puede acceder al path del archivo, por lo tanto se utilizan los bytes
           // Lógica para WEB: Usamos los bytes directamente
-          final bytes = result.files.single.bytes!;
-          final csvString = utf8.decode(bytes);
-          fields = const CsvToListConverter().convert(csvString);
+          final bytes = result.files.single.bytes!; // Obtiene los bytes del archivo
+          final csvString = utf8.decode(bytes); // Decodifica los bytes a texto UTF-8
+          fields = const CsvToListConverter().convert(csvString); // Convierte el texto plano a una estructura de Listas (filas y columnas)
         } else {
-          // Lógica para Desktop/Mobile
+          // Lógica para MÓVIL/DESKTOP: Usamos el path
+          final file = File(result.files.single.path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
+          final input = file.openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
+          fields = await input // Pipeline de transformación:
+              .transform(utf8.decoder) // Decodifica los bytes a texto UTF-8
+              .transform(const CsvToListConverter()) // Convierte el texto plano a una estructura de Listas (filas y columnas)
+            .toList(); // Convierte el Stream en una lista final de datos crudos
         }
-        final file = File(result.files.single
-            .path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
-        final input = file
-            .openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
-
-        final fields = await input // Pipeline de transformación:
-            .transform(utf8.decoder) // Decodifica los bytes a texto UTF-8
-            .transform(
-                const CsvToListConverter()) //Convierte el texto plano a una estructura de Listas (filas y columnas)
-            .toList(); //Convierte el Stream en una lista final de datos crudos
 
         return _mapFieldsToCaravanas(
             fields); // Envía los datos crudos al mapeador para convertirlos en objetos CaravanaModel
       }
     } catch (e) {
       //<!> Aca tendria que armar un log para pasarlo a un log sentralizado
-      print(
-          "Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
+      print("Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
     }
     return null; // Si el usuario cancela la selección, retorna nulo
   }
