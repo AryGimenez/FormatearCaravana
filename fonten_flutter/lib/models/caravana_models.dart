@@ -11,7 +11,7 @@ class CaravanaModel {
 
   CaravanaModel({
     required this.caravana,
-    // this.vid,
+    // this.vid,z
     required this.hf_lectura,
     required this.gia,
     this.seleccionada = false,
