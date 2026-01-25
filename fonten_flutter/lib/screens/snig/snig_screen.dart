@@ -37,7 +37,8 @@ class _SnigScreenState extends State<SnigScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final handler = Provider.of<SnigHandler>(context); // Obtiene el handler usando Provider lo que permite acceder a los datos del handler desde cualquier lugar de la app.
+    final handler = Provider.of<SnigHandler>(
+        context); // Obtiene el handler usando Provider lo que permite acceder a los datos del handler desde cualquier lugar de la app.
 
     // Escucha errores y muestra Snackbar un menu inferior notificando al usuario
     // que a ocurrido un error.
@@ -47,7 +48,8 @@ class _SnigScreenState extends State<SnigScreen> {
           SnackBar( // Muestra el snackbar
             content: Text(handler.errorMessage!), // Muestra el mensaje de error
             backgroundColor: Colors.red, // Color del snackbar
-            behavior: SnackBarBehavior.floating, // Muestra el snackbar como un menu inferior
+            behavior: SnackBarBehavior
+                .floating, // Muestra el snackbar como un menu inferior
           ),
         );
         handler.clearError(); // Limpia el error
@@ -95,6 +97,10 @@ class _SnigScreenState extends State<SnigScreen> {
           if (handler.isLoading)
             const Expanded(child: Center(child: CircularProgressIndicator())),
 
+          // Cabecera con "Seleccionar Todo"
+          if (!handler.isLoading && handler.caravanasFiltradas.isNotEmpty)
+            _buildSelectAllHeader(handler),
+
           if (!handler.isLoading)
             Expanded(
               child: handler.caravanasFiltradas.isEmpty
@@ -115,11 +121,12 @@ class _SnigScreenState extends State<SnigScreen> {
             ),
 
           // Botones eliminar Caravanas Seleccionadas (Solo aparecen si hay seleccionados)
-          if (handler.totalCaravanasSeleccionadas > 0) _buildActionButtons(handler),
+          if (handler.totalCaravanasSeleccionadas > 0)
+            _buildActionButtons(handler),
         ],
       ),
 
-      // 4. BOTÓN FLOTANTE - AGREGAR NUEVA CARAVANA <!> Tengo que arreglarlo y implementar el mentodo cuando termine la interfas 
+      // 4. BOTÓN FLOTANTE - AGREGAR NUEVA CARAVANA <!> Tengo que arreglarlo y implementar el mentodo cuando termine la interfas
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add, color: Colors.white),
@@ -139,10 +146,11 @@ class _SnigScreenState extends State<SnigScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildStat("Todos", "${handler.totalCaravanas}"),
-          _buildStat("Estan en Simulador", "${handler.totalCaravanasOk}", 
-            color: Colors.green),
-          _buildStat("Faltan en Simulador", "${handler.totalCaravanasFaltantes}",
-            color: Colors.red),
+          _buildStat("Estan en Simulador", "${handler.totalCaravanasOk}",
+              color: Colors.green),
+          _buildStat(
+              "Faltan en Simulador", "${handler.totalCaravanasFaltantes}",
+              color: Colors.red),
         ],
       ),
     );
@@ -169,7 +177,8 @@ class _SnigScreenState extends State<SnigScreen> {
           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
       child: Row(
         children: [
-          Expanded(  //<!> Boton elminiar lo seleccionado arreglar 
+          Expanded(
+            //<!> Boton elminiar lo seleccionado arreglar
             child: ElevatedButton.icon(
               onPressed: () => handler.eliminarSeleccionadas(),
               icon: const Icon(Icons.delete, color: Colors.white),
@@ -178,6 +187,54 @@ class _SnigScreenState extends State<SnigScreen> {
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 12)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectAllHeader(SnigHandler handler) {
+    // Ajustamos el padding para alinear con el contenido de las tarjetas
+    // ListView padding (16) + Card padding (16) + Border (5) aprox = ~37
+    // Pero visualmente 32-36 suele quedar bien.
+    return Padding(
+      padding:
+          const EdgeInsets.only(left: 34.0, right: 32.0, top: 8.0, bottom: 4.0),
+      child: Row(
+        children: [
+          // Checkbox alineado con el de los items
+          Transform.scale(
+            scale: 1.1,
+            child: Checkbox(
+              value: handler.areAllSelected,
+              onChanged: handler.toggleSelectAll,
+              activeColor: AppTheme.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            "SELECCIONAR TODO",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              fontSize: 12,
+            ),
+          ),
+          const Spacer(),
+          const Padding(
+            padding: EdgeInsets.only(
+                right: 8.0), // Ajuste fino para la etiqueta ACCIÓN
+            child: Text(
+              "ACCIÓN",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+                fontSize: 12,
+              ),
             ),
           ),
         ],

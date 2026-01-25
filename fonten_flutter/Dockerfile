@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y curl git unzip
 RUN git clone https://github.com/flutter/flutter.git -b stable /usr/local/flutter
 ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
-# Configurar Flutter para web
+# Configurar Flutter para wcd eb
 RUN flutter config --enable-web
 # Pre-descarga de binarios de Flutter
 RUN flutter doctor 

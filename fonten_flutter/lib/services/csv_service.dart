@@ -14,6 +14,7 @@ enum DuplicadosStrategy {
 }
 
 mixin CsvService on BaseService {
+  
   /// Importa una lista de caravanas desde un archivo [file] CSV.
   ///
   /// El parámetro [estrategia] define cómo manejar colisiones de EID:
@@ -24,7 +25,7 @@ mixin CsvService on BaseService {
     File file, {
     required DuplicadosStrategy estrategia,
   }) async {
-    // 1. Validaciones iniciales
+    // Validaciones iniciales
     if (!file.path.endsWith('.csv'))
       throw ImportException("El archivo no es .csv");
 
@@ -39,7 +40,7 @@ mixin CsvService on BaseService {
     // Buscar en un Set es instantáneo, no importa si tenés 10 o 10.000 vacas.
     final eidsExistentes = listCaravanas.map((c) => c.caravana).toSet();
 
-    // 2. Procesamiento de líneas
+    // Procesamiento de líneas
     for (var i = 1; i < lines.length; i++) {
       final data = lines[i].split(',');
       if (data.length < 5) continue; // Evita errores si una línea viene mal

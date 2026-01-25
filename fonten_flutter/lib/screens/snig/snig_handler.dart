@@ -6,57 +6,68 @@ import '../../services/api_service.dart';
 
 /// Clase encargada de gestionar la lógica de negocio y el estado para el Formulario
 /// prinsipal de la aplicacion snig.
-/// 
+///
 /// Centraliza el procesamiento de caravanas, validaciones de formato uruguayo
 /// y la notificación de cambios a la UI mediante el patrón Observer.
-/// La clase extiende de ChangeNotifier para permitir que los Widgets 
+/// La clase extiende de ChangeNotifier para permitir que los Widgets
 /// se reconstruyan automáticamente cuando los datos cambien.
 class SnigHandler extends ChangeNotifier {
   /// Instancia del ApiService para acceder a los datos de las caravanas.
   final ApiService _apiService = ApiService();
+
   /// Lista para filtrar las caravanas que se muestran en la UI.
-  List<CaravanaModel> _filteredCaravanas = []; 
+  List<CaravanaModel> _filteredCaravanas = [];
+
   /// Se encarga de indicar si se esta cargando datos.
   bool _isLoading = false;
-  /// Se encarga de indicar si se ha producido un error. Lo utiliso para mostrar 
-  /// mensaje de erro 
-  String? _errorMessage; 
+
+  /// Se encarga de indicar si se ha producido un error. Lo utiliso para mostrar
+  /// mensaje de erro
+  String? _errorMessage;
 
   /// Constructor de la clase SnigHandler.
-  /// 
+  ///
   /// Inicializa la lista filtrada con los datos del servicio.
   SnigHandler() {
-    _filteredCaravanas = List.from(_apiService.getListCaravanas); // Inicializar la lista filtrada con los datos del servicio
+    _filteredCaravanas = List.from(_apiService
+        .getListCaravanas); // Inicializar la lista filtrada con los datos del servicio
   }
 
   /// Getters Caravanas Filtradas
-  List<CaravanaModel> get caravanasFiltradas => _filteredCaravanas; 
+  List<CaravanaModel> get caravanasFiltradas => _filteredCaravanas;
+
   /// Getters de isLoading
   bool get isLoading => _isLoading;
+
   /// Getters de errorMessage
   String? get errorMessage => _errorMessage;
 
-  // <!> Aca podria crear una variable de lista caravanas y usarla para pasar los parametros 
+  // <!> Aca podria crear una variable de lista caravanas y usarla para pasar los parametros
   /// Getters de totalCaravanas
   int get totalCaravanas => _apiService.getListCaravanas.length;
-  /// Getters de totalCaravanasOk, esto quiere desir las caravanas que se en cuentran en el 
+
+  /// Getters de totalCaravanasOk, esto quiere desir las caravanas que se en cuentran en el
   /// simulador cargado.
-  int get totalCaravanasOk => _apiService.getListCaravanas.where((c) => c.esOk).length;
-  /// Getters de totalCaravanasFaltantes, esto quiere desir las caravanas que 
-  /// no se encuentran en el simulador cargado. 
-  int get totalCaravanasFaltantes => _apiService.getListCaravanas.where((c) => !c.esOk).length;
-  /// Getters de totalCaravanasSeleccionadas, esto quiere desir las caravanas que 
+  int get totalCaravanasOk =>
+      _apiService.getListCaravanas.where((c) => c.esOk).length;
+
+  /// Getters de totalCaravanasFaltantes, esto quiere desir las caravanas que
+  /// no se encuentran en el simulador cargado.
+  int get totalCaravanasFaltantes =>
+      _apiService.getListCaravanas.where((c) => !c.esOk).length;
+
+  /// Getters de totalCaravanasSeleccionadas, esto quiere desir las caravanas que
   /// se seleccionaron en la UI.
   int get totalCaravanasSeleccionadas =>
       _apiService.getListCaravanas.where((c) => c.seleccionada).length;
 
-  /// Elimina el Error 
+  /// Elimina el Error
   void clearError() {
     _errorMessage = null;
     notifyListeners();
   }
 
-  void setGia(String gia){
+  void setGia(String gia) {
     _apiService.gia = gia;
     // notifyListeners(); //<!> Sacar si no es necesario
   }
@@ -67,7 +78,7 @@ class SnigHandler extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners(); // Solo notificamos que empezó a cargar (para el spinner)
- 
+
     try {
       final nuevas = await _apiService.pickAndParseCsv(); // Trae el archivo csv
       if (nuevas != null && nuevas.isNotEmpty) {
@@ -76,8 +87,8 @@ class SnigHandler extends ChangeNotifier {
         // _apiService.addCaravana(pCaravana)
 
         for (var c in nuevas) {
-          // <!> Aca deberia pasar la lista entera y preguntar si quiero cargar o no las caravans repetidsas 
-          // <!> y trabajr con esas ecepciones 
+          // <!> Aca deberia pasar la lista entera y preguntar si quiero cargar o no las caravans repetidsas
+          // <!> y trabajr con esas ecepciones
           _apiService.addCaravana(c);
         }
         _filteredCaravanas = _apiService.getListCaravanas;
@@ -86,6 +97,68 @@ class SnigHandler extends ChangeNotifier {
       _errorMessage = "Error al cargar CSV: $e";
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+  
+  Future<void> cargarArchivoPdf() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final nuevas = await _apiService.pickAndParseSimuladorPDF();
+      if (nuevas != null && nuevas.isNotEmpty) {
+        _apiService.clearCaravanas();
+        for (var c in nuevas) {
+          _apiService.addCaravana(c);
+        }
+        _filteredCaravanas = _apiService.getListCaravanas;
+      }
+    } catch (e) {
+      _errorMessage = "Error al cargar PDF: $e";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> cargarArchivoTxt() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final nuevas = await _apiService.pickAndParseTxt();
+      if (nuevas != null && nuevas.isNotEmpty) {
+        _apiService.clearCaravanas();
+        for (var c in nuevas) {
+          _apiService.addCaravana(c);
+        }
+        _filteredCaravanas = _apiService.getListCaravanas;
+      }
+    } catch (e) {
+      _errorMessage = "Error al cargar TXT: $e";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> exportarArchivoTxt() async {
+    try {
+      final seleccionadas =
+          _apiService.getListCaravanas.where((c) => c.seleccionada).toList();
+
+      if (seleccionadas.isEmpty) {
+        _errorMessage = "No hay caravanas seleccionadas para exportar.";
+        notifyListeners();
+        return;
+      }
+
+      await _apiService.exportarTxt(seleccionadas);
+    } catch (e) {
+      _errorMessage = "Error al exportar TXT: $e";
       notifyListeners();
     }
   }
@@ -113,7 +186,7 @@ class SnigHandler extends ChangeNotifier {
 
   //<!> Aca iria la funcion modificar caravana disparada por el CardItem
   // Tengo que crear una interfas que me de un menu para esta accion
-  void modificarCaravana(int index) { 
+  void modificarCaravana(int index) {
     final caravanaAEliminar = _filteredCaravanas[index];
     final realIndex = _apiService.getListCaravanas.indexOf(caravanaAEliminar);
     if (realIndex != -1) {
@@ -135,7 +208,8 @@ class SnigHandler extends ChangeNotifier {
   /// Este método se encarga de:
   /// 1. Cambiar el valor de la propiedad [seleccionada] de la caravana en la lista filtrada.
   /// 2. Notificar a la interfaz que los datos han cambiado.
-  void toggleSeleccion(int index) { //<!> Esto no tengo claro como funciona principalente en que momenot ago que aparesca el boton elminar
+  void toggleSeleccion(int index) {
+    //<!> Esto no tengo claro como funciona principalente en que momenot ago que aparesca el boton elminar
     _filteredCaravanas[index].seleccionada =
         !_filteredCaravanas[index].seleccionada;
     notifyListeners();
@@ -173,4 +247,18 @@ class SnigHandler extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Verifica si todas las caravanas mostradas están seleccionadas
+  bool get areAllSelected {
+    if (_filteredCaravanas.isEmpty) return false;
+    return _filteredCaravanas.every((c) => c.seleccionada);
+  }
+
+  /// Alterna la selección de todas las caravanas mostradas
+  void toggleSelectAll(bool? value) {
+    if (value == null) return;
+    for (var c in _filteredCaravanas) {
+      c.seleccionada = value;
+    }
+    notifyListeners();
+  }
 }

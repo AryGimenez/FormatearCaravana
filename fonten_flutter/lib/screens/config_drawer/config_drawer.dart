@@ -44,14 +44,15 @@ class ConfigDrawer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
                 // Número de Formulario ---
-                const Text("NÚMERO DE FORMULARIO *",
+                const Text("NÚMERO DE FORMULARIO *", // <!> Esto no va tengo qeu cambiar el texto 
                     style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey)),
                 const SizedBox(height: 8),
-                // Gia a asignar --------  
-                TextField( //<!> Cambiar de color mas claro 
+                // Gia a asignar --------
+                TextField(
+                  //<!> Cambiar de color mas claro
                   onChanged: (val) => handler.setGia(val),
                   decoration: InputDecoration(
                     hintText: "Ej: C204416",
@@ -66,7 +67,7 @@ class ConfigDrawer extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
 
-                const SizedBox(height: 25), 
+                const SizedBox(height: 25),
 
                 // Boton de Carga (CSV) ----
                 _buildActionButton(
@@ -81,7 +82,32 @@ class ConfigDrawer extends StatelessWidget {
                   label: "CARGAR PDF",
                   sub: "Del Simulador",
                   icon: Icons.picture_as_pdf,
-                  onTap: () {},
+                  onTap: () {handler.cargarArchivoPdf();},
+                ),
+
+                // Boton de Carga (TXT) ----
+                const SizedBox(height: 12),
+                _buildActionButton(
+                  label: "IMPORTAR TXT",
+                  sub: "Cargar desde archivo texto",
+                  icon: Icons.text_snippet,
+                  onTap: () => handler.cargarArchivoTxt(),
+                ),
+
+                // Boton de Exportar (TXT) GENERA EL ARCHIVO  ----
+                const SizedBox(height: 12),
+                _buildActionButton(
+                  label: "EXPORTAR TXT",
+                  sub: handler.totalCaravanasSeleccionadas > 0
+                      ? "Exportar seleccionados (${handler.totalCaravanasSeleccionadas})"
+                      : "Seleccione items para exportar",
+                  icon: Icons.save_alt,
+                  onTap: handler.totalCaravanasSeleccionadas > 0
+                      ? () => handler.exportarArchivoTxt()
+                      : null,
+                  color: handler.totalCaravanasSeleccionadas > 0
+                      ? AppTheme.primary
+                      : Colors.grey,
                 ),
 
                 const SizedBox(height: 25),
@@ -126,17 +152,24 @@ class ConfigDrawer extends StatelessWidget {
     );
   }
 
+
+
+  //<!> Esto tengo que cambiarlo para que el formato de los botones se mas pequiene ocupa mucho espacio
+  
   Widget _buildActionButton(
       {required String label,
       required String sub,
       required IconData icon,
-      required VoidCallback onTap}) {
+      required VoidCallback? onTap,
+      Color? color}) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-            color: AppTheme.primary, borderRadius: BorderRadius.circular(12)),
+            color: color ?? AppTheme.primary,
+            borderRadius: BorderRadius.circular(12)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

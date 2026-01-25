@@ -1,0 +1,17 @@
+
+[
+  {
+    "caravana": "858000051983700",
+    "hf_lectura": "2024-07-02T08:00:00",
+    "gia": "C43434",
+    "esOk": true,
+    "seleccionada": true
+  },
+  {
+    "caravana": "858000051983701",
+    "hf_lectura": "2024-07-02T08:01:00",
+    "gia": "C43434",
+    "esOk": true,
+    "seleccionada": true
+  }
+]
