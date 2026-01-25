@@ -31,7 +31,7 @@ class ApiService extends BaseService
   /// Aquí se define la [baseUrl] fija y se dispara la lógica de [_init] para
   /// recuperar datos persistentes (como el token) al momento de arrancar el servicio.
   ApiService._internal() {
-    //_cargarDatosEjemplo();
+    _cargarDatosEjemplo();
   }
 
   // Ejemplo de carga inicial (opcional)
