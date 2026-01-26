@@ -43,47 +43,57 @@ class ConfigDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                
                 const SizedBox(height: 25),
 
-                // Boton de Carga (CSV) ----
-                _buildActionButton(
-                  label: "CARGAR CSV",
-                  icon: Icons.table_view,
-                  onTap: () => handler.cargarArchivoCsv(),
-                ),
-                const SizedBox(height: 8),
+                //Botones de Importar y Exportar ----
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Alinea el contenido a la izquierda
+                  children: [
+                    // Boton de Carga (CSV) ----
+                    _buildActionButton(
+                      label: "CARGAR CSV",
+                      icon: Icons.table_view,
+                      onTap: () => handler.cargarArchivoCsv(),
+                    ),
+                    const SizedBox(height: 8),
 
-                // Boton de Carga (PDF) ----
-                _buildActionButton(
-                  label: "CARGAR PDF",
-                  icon: Icons.picture_as_pdf,
-                  onTap: () => handler.cargarArchivoPdf(),
-                ),
+                    // Boton de Carga (PDF) ----
+                    _buildActionButton(
+                      label: "CARGAR PDF",
+                      icon: Icons.picture_as_pdf,
+                      onTap: () => handler.cargarArchivoPdf(),
+                    ),
 
-                // Boton de Carga (TXT) ----
-                const SizedBox(height: 8),
-                _buildActionButton(
-                  label: "IMPORTAR TXT",
-                  icon: Icons.note_add,
-                  onTap: () => handler.cargarArchivoTxt(),
-                ),
+                    // Boton de Carga (TXT) ----
+                    const SizedBox(height: 8),
+                    _buildActionButton(
+                      label: "IMPORTAR TXT",
+                      icon: Icons.note_add,
+                      onTap: () => handler.cargarArchivoTxt(),
+                    ),
 
-                // Boton de Exportar (TXT) ----
-                const SizedBox(height: 8),
-                _buildActionButton(
-                  label: "EXPORTAR TXT",
-                  icon: Icons.download,
-                  onTap: handler.totalCaravanasSeleccionadas > 0
-                      ? () => handler.exportarArchivoTxt()
-                      : null,
-                  color: handler.totalCaravanasSeleccionadas > 0
-                      ? null
-                      : Colors.grey,
+                    // Boton de Exportar (TXT) ----
+                    const SizedBox(height: 8),
+                    _buildActionButton(
+                      label: "EXPORTAR TXT",
+                      icon: Icons.download,
+                      onTap: handler.totalCaravanasSeleccionadas > 0
+                          ? () => handler.exportarArchivoTxt()
+                          : null,
+                      color: handler.totalCaravanasSeleccionadas > 0
+                          ? null
+                          : Colors.grey,
+                    ),                    
+                  ],
                 ),
 
                 const SizedBox(height: 25),
                 const Divider(),
+
+
+
+
+
               // <!> De aca para bajo me gustaria separar estas opciones con un cadro o algo no se com que se sepa que esto es para modificar los camos de las caravanas seleccinadas
                 // Gia de la lectura Cartel ---
                 const Text(
