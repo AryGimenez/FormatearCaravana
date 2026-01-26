@@ -43,13 +43,61 @@ class ConfigDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                // Número de Formulario ---
-                const Text("NÚMERO DE FORMULARIO *", // <!> Esto no va tengo qeu cambiar el texto 
+                
+                const SizedBox(height: 25),
+
+                // Boton de Carga (CSV) ----
+                _buildActionButton(
+                  label: "CARGAR CSV",
+                  icon: Icons.table_view,
+                  onTap: () => handler.cargarArchivoCsv(),
+                ),
+                const SizedBox(height: 8),
+
+                // Boton de Carga (PDF) ----
+                _buildActionButton(
+                  label: "CARGAR PDF",
+                  icon: Icons.picture_as_pdf,
+                  onTap: () => handler.cargarArchivoPdf(),
+                ),
+
+                // Boton de Carga (TXT) ----
+                const SizedBox(height: 8),
+                _buildActionButton(
+                  label: "IMPORTAR TXT",
+                  icon: Icons.note_add,
+                  onTap: () => handler.cargarArchivoTxt(),
+                ),
+
+                // Boton de Exportar (TXT) ----
+                const SizedBox(height: 8),
+                _buildActionButton(
+                  label: "EXPORTAR TXT",
+                  icon: Icons.download,
+                  onTap: handler.totalCaravanasSeleccionadas > 0
+                      ? () => handler.exportarArchivoTxt()
+                      : null,
+                  color: handler.totalCaravanasSeleccionadas > 0
+                      ? null
+                      : Colors.grey,
+                ),
+
+                const SizedBox(height: 25),
+                const Divider(),
+              // <!> De aca para bajo me gustaria separar estas opciones con un cadro o algo no se com que se sepa que esto es para modificar los camos de las caravanas seleccinadas
+                // Gia de la lectura Cartel ---
+                const Text(
+                    "Gia de la lectura *", // <!> Esto no va tengo qeu cambiar el texto
                     style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey)),
+
                 const SizedBox(height: 8),
+
+                // const SizedBox(height: 25), //
+                // const Divider(),
+
                 // Gia a asignar --------
                 TextField(
                   //<!> Cambiar de color mas claro
@@ -67,52 +115,6 @@ class ConfigDrawer extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
 
-                const SizedBox(height: 25),
-
-                // Boton de Carga (CSV) ----
-                _buildActionButton(
-                  label: "CARGAR CSV",
-                  sub: "Importar lista de animales",
-                  icon: Icons.table_view,
-                  onTap: () => handler.cargarArchivoCsv(),
-                ),
-                // Boton de Carga (PDF) ----
-                const SizedBox(height: 12),
-                _buildActionButton(
-                  label: "CARGAR PDF",
-                  sub: "Del Simulador",
-                  icon: Icons.picture_as_pdf,
-                  onTap: () {handler.cargarArchivoPdf();},
-                ),
-
-                // Boton de Carga (TXT) ----
-                const SizedBox(height: 12),
-                _buildActionButton(
-                  label: "IMPORTAR TXT",
-                  sub: "Cargar desde archivo texto",
-                  icon: Icons.text_snippet,
-                  onTap: () => handler.cargarArchivoTxt(),
-                ),
-
-                // Boton de Exportar (TXT) GENERA EL ARCHIVO  ----
-                const SizedBox(height: 12),
-                _buildActionButton(
-                  label: "EXPORTAR TXT",
-                  sub: handler.totalCaravanasSeleccionadas > 0
-                      ? "Exportar seleccionados (${handler.totalCaravanasSeleccionadas})"
-                      : "Seleccione items para exportar",
-                  icon: Icons.save_alt,
-                  onTap: handler.totalCaravanasSeleccionadas > 0
-                      ? () => handler.exportarArchivoTxt()
-                      : null,
-                  color: handler.totalCaravanasSeleccionadas > 0
-                      ? AppTheme.primary
-                      : Colors.grey,
-                ),
-
-                const SizedBox(height: 25),
-                const Divider(),
-
                 // Sección de Hora Masiva
                 const Row(
                   children: [
@@ -124,6 +126,8 @@ class ConfigDrawer extends StatelessWidget {
                   ],
                 ),
                 // Aquí irían los controles de selector de hora que dibujaste...
+
+
               ],
             ),
           ),
@@ -152,13 +156,10 @@ class ConfigDrawer extends StatelessWidget {
     );
   }
 
-
-
   //<!> Esto tengo que cambiarlo para que el formato de los botones se mas pequiene ocupa mucho espacio
-  
+
   Widget _buildActionButton(
       {required String label,
-      required String sub,
       required IconData icon,
       required VoidCallback? onTap,
       Color? color}) {
@@ -166,27 +167,34 @@ class ConfigDrawer extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-            color: color ?? AppTheme.primary,
-            borderRadius: BorderRadius.circular(12)),
+          color: color ?? AppTheme.primary,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            )
+          ],
+        ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16)),
-                Text(sub,
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 10)),
-              ],
+            Icon(icon, color: Colors.white.withOpacity(0.9), size: 24),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                letterSpacing: 0.5,
+              ),
             ),
-            Icon(icon, color: Colors.white, size: 30),
+            const Spacer(),
+            Icon(Icons.chevron_right,
+                color: Colors.white.withOpacity(0.5), size: 20),
           ],
         ),
       ),
