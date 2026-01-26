@@ -24,6 +24,7 @@ class ConfigDrawer extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
                 const Text("Configuración\nde Carga",
                     style: TextStyle(
                         fontSize: 24,
@@ -43,7 +44,7 @@ class ConfigDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                const SizedBox(height: 25),
+                const SizedBox(height: 10),
 
                 //Botones de Importar y Exportar ----
                 Column(
@@ -87,57 +88,89 @@ class ConfigDrawer extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 10),
                 const Divider(),
 
-
-
-
-
-              // <!> De aca para bajo me gustaria separar estas opciones con un cadro o algo no se com que se sepa que esto es para modificar los camos de las caravanas seleccinadas
-                // Gia de la lectura Cartel ---
-                const Text(
-                    "Gia de la lectura *", // <!> Esto no va tengo qeu cambiar el texto
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey)),
-
-                const SizedBox(height: 8),
-
-                // const SizedBox(height: 25), //
-                // const Divider(),
-
-                // Gia a asignar --------
-                TextField(
-                  //<!> Cambiar de color mas claro
-                  onChanged: (val) => handler.setGia(val),
-                  decoration: InputDecoration(
-                    hintText: "Ej: C204416",
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon:
-                        const Icon(Icons.description, color: Colors.grey),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none),
+                // Edicion masiva ----
+                Container( // Contenedor de la sección de edición masiva
+                  margin: const EdgeInsets.symmetric(vertical: 10), // Margen vertical
+                  padding: const EdgeInsets.all(16), // Padding interno
+                  decoration: BoxDecoration( // Decoración del contenedor
+                    color: Colors.white, // Fondo blanco para resaltar sobre el fondo del drawer
+                    borderRadius: BorderRadius.circular(15), // Radio de la esquina
+                    border: Border.all(color: Colors.grey.shade300), // Borde del contenedor
                   ),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
 
-                // Sección de Hora Masiva
-                const Row(
-                  children: [
-                    Icon(Icons.schedule, color: AppTheme.primary),
-                    SizedBox(width: 8),
-                    Text("Hora Masiva",
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      const Text( // TITULO DE LA SECCIÓN <!> Capas lo saco o mejoro la estetica no me gusta 
+                        "MODIFICAR DATOS DE LA SELECCION",
+                        style: TextStyle( 
+                            fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      
+                      const SizedBox(height: 15), // Separador 
+                      
+
+                      // --- FILA GIA (Label + Switch) ---
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Lbl Cambiar GIA
+                          const Text("Cambiar GIA",
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          
+                          // Switch Cambiar GIA
+                          Switch(
+                            // Usamos el thumbIcon que te gustó
+                            thumbIcon: WidgetStateProperty.fromMap(
+                              <WidgetStatesConstraint, Icon>{
+                                WidgetState.selected: const Icon(Icons.check, color: Colors.white),
+                                WidgetState.any: const Icon(Icons.close, color: Colors.white),
+                              },
+                            ),
+                            activeColor: Colors.green,
+                            inactiveThumbColor: Colors.red,
+                            value: handler.isGiaEditEnabled, // Debes crear esta bool en tu handler
+                            onChanged: (val) => handler.setGiaEditEnabled(val),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 8),
+                      
+                      TextField(
+                        enabled: handler.isGiaEditEnabled, // <--- ESTO LO BLOQUEA
+                        onChanged: (val) => handler.setGia(val),
+                        decoration: InputDecoration(
+                          hintText: "Nuevo GIA (Ej: C204416)",
+                          filled: true,
+                          fillColor: handler.isGiaEditEnabled ? Colors.white : Colors.grey[100],
+                          prefixIcon: Icon(Icons.description, 
+                            color: handler.isGiaEditEnabled ? Colors.green : Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                        ),
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                  ],
-                ),
+                          fontWeight: FontWeight.bold,
+                          color: handler.isGiaEditEnabled ? Colors.black : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+
+
                 // Aquí irían los controles de selector de hora que dibujaste...
 
-
+                ),
               ],
             ),
           ),
@@ -148,6 +181,66 @@ class ConfigDrawer extends StatelessWidget {
       ),
     );
   }
+
+
+  Widget _buildGiaEditSection(SnigHandler handler) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        children: [
+          // --- FILA GIA (Label + Switch) ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Cambiar GIA",
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              Switch(
+                thumbIcon: WidgetStateProperty.fromMap(
+                  <WidgetStatesConstraint, Icon>{
+                    WidgetState.selected: const Icon(Icons.check, color: Colors.white),
+                    WidgetState.any: const Icon(Icons.close, color: Colors.white),
+                  },
+                ),
+                activeColor: Colors.green,
+                inactiveThumbColor: Colors.red,
+                value: handler.isGiaEditEnabled,
+                onChanged: (val) => handler.setGiaEditEnabled(val),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 8),
+          // --- FILA NUEVO GIA (TextField) ---
+          TextField(
+            enabled: handler.isGiaEditEnabled,
+            onChanged: (val) => handler.setGia(val),
+            decoration: InputDecoration(
+              hintText: "Nuevo GIA (Ej: C204416)",
+              filled: true,
+              fillColor: handler.isGiaEditEnabled ? Colors.white : Colors.grey[100],
+              prefixIcon: Icon(Icons.description, 
+                color: handler.isGiaEditEnabled ? Colors.green : Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+            ),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: handler.isGiaEditEnabled ? Colors.black : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildApplyButton(BuildContext context) {
     return Padding(
