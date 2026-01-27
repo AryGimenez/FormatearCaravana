@@ -72,97 +72,6 @@ class SnigHandler extends ChangeNotifier {
     // notifyListeners(); //<!> Sacar si no es necesario
   }
 
-  // <!> Aca me falta como cargar el archivo no voe que este por ningun lado
-  // Se que tengo que traerlo de snig_handler
-  Future<void> cargarArchivoCsv() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners(); // Solo notificamos que empezó a cargar (para el spinner)
-
-    try {
-      final nuevas = await _apiService.pickAndParseCsv(); // Trae el archivo csv
-      if (nuevas != null && nuevas.isNotEmpty) {
-        _apiService.clearCaravanas();
-
-        // _apiService.addCaravana(pCaravana)
-
-        for (var c in nuevas) {
-          // <!> Aca deberia pasar la lista entera y preguntar si quiero cargar o no las caravans repetidsas
-          // <!> y trabajr con esas ecepciones
-          _apiService.addCaravana(c);
-        }
-        _filteredCaravanas = _apiService.getListCaravanas;
-      }
-    } catch (e) {
-      _errorMessage = "Error al cargar CSV: $e";
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-  
-  Future<void> cargarArchivoPdf() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final nuevas = await _apiService.pickAndParseSimuladorPDF();
-      if (nuevas != null && nuevas.isNotEmpty) {
-        _apiService.clearCaravanas();
-        for (var c in nuevas) {
-          _apiService.addCaravana(c);
-        }
-        _filteredCaravanas = _apiService.getListCaravanas;
-      }
-    } catch (e) {
-      _errorMessage = "Error al cargar PDF: $e";
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> cargarArchivoTxt() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final nuevas = await _apiService.pickAndParseTxt();
-      if (nuevas != null && nuevas.isNotEmpty) {
-        _apiService.clearCaravanas();
-        for (var c in nuevas) {
-          _apiService.addCaravana(c);
-        }
-        _filteredCaravanas = _apiService.getListCaravanas;
-      }
-    } catch (e) {
-      _errorMessage = "Error al cargar TXT: $e";
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> exportarArchivoTxt() async {
-    try {
-      final seleccionadas =
-          _apiService.getListCaravanas.where((c) => c.seleccionada).toList();
-
-      if (seleccionadas.isEmpty) {
-        _errorMessage = "No hay caravanas seleccionadas para exportar.";
-        notifyListeners();
-        return;
-      }
-
-      await _apiService.exportarTxt(seleccionadas);
-    } catch (e) {
-      _errorMessage = "Error al exportar TXT: $e";
-      notifyListeners();
-    }
-  }
-
   void agregarCaravana(CaravanaModel nueva) {
     try {
       _apiService.addCaravana(nueva);
@@ -260,5 +169,199 @@ class SnigHandler extends ChangeNotifier {
       c.seleccionada = value;
     }
     notifyListeners();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// <!> Lo de abajo tengo que pasarlo a config_drawer_handler
+
+  /// Determina si el gia es editable
+  bool isGiaEditEnabled = true;
+
+  /// Setea el valor de isGiaEditEnabled
+  void setGiaEditEnabled(bool value) {
+    isGiaEditEnabled = value;
+    notifyListeners();
+  }
+
+  /// Determina si la fecha es editable
+  bool isDateEditEnabled = true;
+
+  /// Setea el valor de isDateEditEnabled
+  void setDateEditEnabled(bool value) {
+    isDateEditEnabled = value;
+    notifyListeners();
+  }
+
+  /// Fecha seleccionada para la carga
+  DateTime _selectedDate = DateTime.now();
+
+  /// Getter de selectedDate
+  DateTime get selectedDate => _selectedDate;
+
+  /// Hora seleccionada para la carga
+  TimeOfDay _selectedTime = TimeOfDay.now();
+
+  /// Getter de selectedTime
+  TimeOfDay get selectedTime => _selectedTime;
+  
+  /// Determina si la hora es editable
+  bool isTimeEditEnabled = true;
+
+  /// Setea el valor de isTimeEditEnabled
+  void setTimeEditEnabled(bool value) {
+    isTimeEditEnabled = value;
+    notifyListeners();
+  }
+  
+  /// Setea el valor de selectedTime
+  void setSelectedTime(TimeOfDay time) {
+    _selectedTime = time;
+    notifyListeners();
+  }
+
+
+
+  
+
+  /// Setea la fecha seleccionada
+  void setDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
+
+  // <!> Aca me falta como cargar el archivo no voe que este por ningun lado
+  // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
+  // Se que tengo que traerlo de snig_handler
+  Future<void> cargarArchivoCsv() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners(); // Solo notificamos que empezó a cargar (para el spinner)
+
+    try {
+      final nuevas = await _apiService.pickAndParseCsv(); // Trae el archivo csv
+      if (nuevas != null && nuevas.isNotEmpty) {
+        _apiService.clearCaravanas();
+
+        // _apiService.addCaravana(pCaravana)
+
+        for (var c in nuevas) {
+          // <!> Aca deberia pasar la lista entera y preguntar si quiero cargar o no las caravans repetidsas
+          // <!> y trabajr con esas ecepciones
+          _apiService.addCaravana(c);
+        }
+        _filteredCaravanas = _apiService.getListCaravanas;
+      }
+    } catch (e) {
+      _errorMessage = "Error al cargar CSV: $e";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
+  Future<void> cargarArchivoPdf() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final nuevas = await _apiService.pickAndParseSimuladorPDF();
+      if (nuevas != null && nuevas.isNotEmpty) {
+        _apiService.clearCaravanas();
+        for (var c in nuevas) {
+          _apiService.addCaravana(c);
+        }
+        _filteredCaravanas = _apiService.getListCaravanas;
+      }
+    } catch (e) {
+      _errorMessage = "Error al cargar PDF: $e";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
+  Future<void> cargarArchivoTxt() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final nuevas = await _apiService.pickAndParseTxt();
+      if (nuevas != null && nuevas.isNotEmpty) {
+        _apiService.clearCaravanas();
+        for (var c in nuevas) {
+          _apiService.addCaravana(c);
+        }
+        _filteredCaravanas = _apiService.getListCaravanas;
+      }
+    } catch (e) {
+      _errorMessage = "Error al cargar TXT: $e";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
+  Future<void> exportarArchivoTxt() async {
+    try {
+      final seleccionadas =
+          _apiService.getListCaravanas.where((c) => c.seleccionada).toList();
+
+      if (seleccionadas.isEmpty) {
+        _errorMessage = "No hay caravanas seleccionadas para exportar.";
+        notifyListeners();
+        return;
+      }
+
+      await _apiService.exportarTxt(seleccionadas);
+    } catch (e) {
+      _errorMessage = "Error al exportar TXT: $e";
+      notifyListeners();
+    }
   }
 }
