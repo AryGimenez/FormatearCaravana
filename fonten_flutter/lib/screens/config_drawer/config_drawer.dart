@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 class ConfigDrawer extends StatelessWidget {
   const ConfigDrawer({super.key});
 
-  //<!> Esto lo agrego la ia no se lo que es 
+  //<!> Esto lo agrego la ia no se lo que es
   static final WidgetStateProperty<Icon?> _thumbIcon =
       WidgetStateProperty.fromMap(
     <WidgetStatesConstraint, Icon>{
@@ -98,53 +98,63 @@ class ConfigDrawer extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 5),
-                const Divider(),
+                const SizedBox(height: 10),    
 
                 // Caja Edicion masiva ----
                 Container(
-                  // Contenedor de la sección de edición masiva
-                  margin: const EdgeInsets.symmetric(
-                      vertical: 5), // Margen vertical
-                  padding: const EdgeInsets.all(5), // Padding interno
+                  margin: const EdgeInsets.symmetric(vertical: 5),
                   decoration: BoxDecoration(
-                    // Decoración del contenedor
-                    color: Colors
-                        .white, // Fondo blanco para resaltar sobre el fondo del drawer
-                    borderRadius:
-                        BorderRadius.circular(15), // Radio de la esquina
-                    border: Border.all(
-                        color: Colors.grey.shade300), // Borde del contenedor
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey.shade300),
                   ),
 
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        // TITULO DE LA SECCIÓN <!> Capas lo saco o mejoro la estetica no me gusta
-                        "MODIFICAR DATOS DE LA SELECCION",
-                        style: TextStyle(
+                      // CABECERA VERDE (El "Label" con bordes redondeados superiores)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        decoration: const BoxDecoration(
+                          color: AppTheme.primary, // O el verde que estés usando
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(14),
+                            topRight: Radius.circular(14),
+                          ),
+                        ),
+
+                        child: Text(
+                          "EDICIÓN DE LOTE (${handler.totalCaravanasSeleccionadas} Seleccionadas)",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
 
-                      const SizedBox(height: 5), // Separador
 
-                      // Campo GIA ---
-                      _buildGiaEditSection(handler),
+                      
 
-                      // Campo Fecha ---
-                      _buildDateEditSection(handler, context),
-
-                      // Campo Hora ---
-                      _buildTimeEditSection(handler, context)
-
+                      // CUERPO DE LA CAJA (Con menos espacio entre elementos)
+                      Padding(
+                        padding: const EdgeInsets.all(10.0), // Achicamos el padding general
+                        child: Column(
+                          children: [
+                            _buildGiaEditSection(handler),
+                            _buildDateEditSection(handler, context),
+                            _buildTimeEditSection(handler, context),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
+                ),
 
                   // Aquí irían los controles de selector de hora que dibujaste...
-                ),
+                
               ],
             ),
           ),
@@ -158,8 +168,8 @@ class ConfigDrawer extends StatelessWidget {
 
   Widget _buildGiaEditSection(SnigHandler handler) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5), // Margen vertical
-      padding: const EdgeInsets.all(5), // Padding interno
+      margin: const EdgeInsets.symmetric(vertical: 2), // Margen vertical
+      padding: const EdgeInsets.all(2), // Padding interno
       child: Column(
         children: [
           // --- FILA GIA (Label + Switch) ---
@@ -223,8 +233,8 @@ class ConfigDrawer extends StatelessWidget {
 
   Widget _buildDateEditSection(SnigHandler handler, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.all(5),
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.all(2),
       child: Column(
         children: [
           // --- FILA FECHA (Label + Switch) ---
@@ -280,8 +290,8 @@ class ConfigDrawer extends StatelessWidget {
 
   Widget _buildTimeEditSection(SnigHandler handler, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.all(5),
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.all(2),
       child: Column(
         children: [
           // --- FILA HORA (Label + Switch) ---
@@ -299,20 +309,24 @@ class ConfigDrawer extends StatelessWidget {
               ),
             ],
           ),
-          
+
           // --- FILA NUEVA HORA (TextField con Tap) ---
           TextField(
             readOnly: true,
-            onTap: handler.isTimeEditEnabled ? () => _selectTime(context, handler) : null,
+            onTap: handler.isTimeEditEnabled
+                ? () => _selectTime(context, handler)
+                : null,
             decoration: InputDecoration(
               hintText: handler.selectedTime.format(context),
               filled: true,
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-              fillColor: handler.isTimeEditEnabled ? Colors.white : Colors.grey[100],
-              prefixIcon: Icon(Icons.access_time, 
-                color: handler.isTimeEditEnabled ? Colors.green : Colors.grey,
-                size: 20),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              fillColor:
+                  handler.isTimeEditEnabled ? Colors.white : Colors.grey[100],
+              prefixIcon: Icon(Icons.access_time,
+                  color: handler.isTimeEditEnabled ? Colors.green : Colors.grey,
+                  size: 20),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.grey.shade300),
@@ -355,7 +369,7 @@ class ConfigDrawer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: ElevatedButton(
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => _handleApplyButton(context),
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF121714),
           minimumSize: const Size(double.infinity, 60),
@@ -368,19 +382,29 @@ class ConfigDrawer extends StatelessWidget {
     );
   }
 
+  void _handleApplyButton(BuildContext context) {
+    
+    handler.applyChanges();
+    Navigator.pop(context);
+  }
+
   Widget _buildActionButton(
-      {required String label,
-      required IconData icon,
-      required VoidCallback? onTap,
+      {required String label, // Texto del boton
+      required IconData icon, // Icono del boton
+      required VoidCallback? onTap, // Accion al presionar el boton
       Color? color}) {
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      onTap: onTap == null 
+        ? null 
+        : () => onTap(),  // Accion al presionar el boton
+
+        
+      borderRadius: BorderRadius.circular(12), // Radio de la esquina
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color ?? AppTheme.primary,
-          borderRadius: BorderRadius.circular(12),
+          color: color ?? AppTheme.primary, // Color del boton
+          borderRadius: BorderRadius.circular(12), // Radio de la esquina
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
