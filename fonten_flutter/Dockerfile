@@ -64,7 +64,7 @@ RUN echo 'server { \
 }' > /etc/nginx/conf.d/default.conf
 
 
-
+# <!> Esto parese que no va el de arriba parese funcionar bien 
 # Comando anterior 
 # RUN echo 'server { \
 #     listen 80; \
