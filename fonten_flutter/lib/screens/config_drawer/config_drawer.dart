@@ -4,9 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../snig/snig_handler.dart';
 import '../../core/theme/app_theme.dart';
+import 'package:intl/intl.dart';
 
 class ConfigDrawer extends StatelessWidget {
   const ConfigDrawer({super.key});
+
+  //<!> Esto lo agrego la ia no se lo que es 
+  static final WidgetStateProperty<Icon?> _thumbIcon =
+      WidgetStateProperty.fromMap(
+    <WidgetStatesConstraint, Icon>{
+      WidgetState.selected: const Icon(Icons.check, color: Colors.white),
+      WidgetState.any: const Icon(Icons.close, color: Colors.white),
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +34,9 @@ class ConfigDrawer extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-
-                const Text("Configuración\nde Carga",
+                const Text("Gestión de Lecturas",
                     style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.w800,
                         height: 1.1)),
                 IconButton(
@@ -48,7 +57,8 @@ class ConfigDrawer extends StatelessWidget {
 
                 //Botones de Importar y Exportar ----
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Alinea el contenido a la izquierda
+                  crossAxisAlignment: CrossAxisAlignment
+                      .start, // Alinea el contenido a la izquierda
                   children: [
                     // Boton de Carga (CSV) ----
                     _buildActionButton(
@@ -84,7 +94,7 @@ class ConfigDrawer extends StatelessWidget {
                       color: handler.totalCaravanasSeleccionadas > 0
                           ? null
                           : Colors.grey,
-                    ),                    
+                    ),
                   ],
                 ),
 
@@ -92,84 +102,48 @@ class ConfigDrawer extends StatelessWidget {
                 const Divider(),
 
                 // Edicion masiva ----
-                Container( // Contenedor de la sección de edición masiva
-                  margin: const EdgeInsets.symmetric(vertical: 10), // Margen vertical
-                  padding: const EdgeInsets.all(16), // Padding interno
-                  decoration: BoxDecoration( // Decoración del contenedor
-                    color: Colors.white, // Fondo blanco para resaltar sobre el fondo del drawer
-                    borderRadius: BorderRadius.circular(15), // Radio de la esquina
-                    border: Border.all(color: Colors.grey.shade300), // Borde del contenedor
+                Container(
+                  // Contenedor de la sección de edición masiva
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 5), // Margen vertical
+                  padding: const EdgeInsets.all(5), // Padding interno
+                  decoration: BoxDecoration(
+                    // Decoración del contenedor
+                    color: Colors
+                        .white, // Fondo blanco para resaltar sobre el fondo del drawer
+                    borderRadius:
+                        BorderRadius.circular(15), // Radio de la esquina
+                    border: Border.all(
+                        color: Colors.grey.shade300), // Borde del contenedor
                   ),
 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
-                      const Text( // TITULO DE LA SECCIÓN <!> Capas lo saco o mejoro la estetica no me gusta 
+                      const Text(
+                        // TITULO DE LA SECCIÓN <!> Capas lo saco o mejoro la estetica no me gusta
                         "MODIFICAR DATOS DE LA SELECCION",
-                        style: TextStyle( 
-                            fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      
-                      const SizedBox(height: 15), // Separador 
-                      
-
-                      // --- FILA GIA (Label + Switch) ---
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Lbl Cambiar GIA
-                          const Text("Cambiar GIA",
-                              style: TextStyle(fontWeight: FontWeight.w600)),
-                          
-                          // Switch Cambiar GIA
-                          Switch(
-                            // Usamos el thumbIcon que te gustó
-                            thumbIcon: WidgetStateProperty.fromMap(
-                              <WidgetStatesConstraint, Icon>{
-                                WidgetState.selected: const Icon(Icons.check, color: Colors.white),
-                                WidgetState.any: const Icon(Icons.close, color: Colors.white),
-                              },
-                            ),
-                            activeColor: Colors.green,
-                            inactiveThumbColor: Colors.red,
-                            value: handler.isGiaEditEnabled, // Debes crear esta bool en tu handler
-                            onChanged: (val) => handler.setGiaEditEnabled(val),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 8),
-                      
-                      TextField(
-                        enabled: handler.isGiaEditEnabled, // <--- ESTO LO BLOQUEA
-                        onChanged: (val) => handler.setGia(val),
-                        decoration: InputDecoration(
-                          hintText: "Nuevo GIA (Ej: C204416)",
-                          filled: true,
-                          fillColor: handler.isGiaEditEnabled ? Colors.white : Colors.grey[100],
-                          prefixIcon: Icon(Icons.description, 
-                            color: handler.isGiaEditEnabled ? Colors.green : Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                        ),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: handler.isGiaEditEnabled ? Colors.black : Colors.grey,
-                        ),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
                       ),
+
+                      const SizedBox(height: 5), // Separador
+
+                      // Campo GIA ---
+                      _buildGiaEditSection(handler),
+
+                      // Campo Fecha ---
+                      _buildDateEditSection(handler, context),
+
+                      // Campo Hora ---
+                      _buildTimeEditSection(handler, context)
+
                     ],
                   ),
 
-
-                // Aquí irían los controles de selector de hora que dibujaste...
-
+                  // Aquí irían los controles de selector de hora que dibujaste...
                 ),
               ],
             ),
@@ -182,16 +156,10 @@ class ConfigDrawer extends StatelessWidget {
     );
   }
 
-
   Widget _buildGiaEditSection(SnigHandler handler) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
+      margin: const EdgeInsets.symmetric(vertical: 5), // Margen vertical
+      padding: const EdgeInsets.all(5), // Padding interno
       child: Column(
         children: [
           // --- FILA GIA (Label + Switch) ---
@@ -203,8 +171,10 @@ class ConfigDrawer extends StatelessWidget {
               Switch(
                 thumbIcon: WidgetStateProperty.fromMap(
                   <WidgetStatesConstraint, Icon>{
-                    WidgetState.selected: const Icon(Icons.check, color: Colors.white),
-                    WidgetState.any: const Icon(Icons.close, color: Colors.white),
+                    WidgetState.selected:
+                        const Icon(Icons.check, color: Colors.white),
+                    WidgetState.any:
+                        const Icon(Icons.close, color: Colors.white),
                   },
                 ),
                 activeColor: Colors.green,
@@ -214,24 +184,34 @@ class ConfigDrawer extends StatelessWidget {
               ),
             ],
           ),
-          
-          const SizedBox(height: 8),
+
           // --- FILA NUEVO GIA (TextField) ---
           TextField(
             enabled: handler.isGiaEditEnabled,
             onChanged: (val) => handler.setGia(val),
             decoration: InputDecoration(
               hintText: "Nuevo GIA (Ej: C204416)",
-              filled: true,
-              fillColor: handler.isGiaEditEnabled ? Colors.white : Colors.grey[100],
-              prefixIcon: Icon(Icons.description, 
-                color: handler.isGiaEditEnabled ? Colors.green : Colors.grey),
+              filled: true, // Relleno del campo
+              isDense: true, // Reducir el padding interno del campo
+              contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10, horizontal: 12), // Padding interno del campo
+              fillColor: handler.isGiaEditEnabled
+                  ? Colors.white
+                  : Colors.grey[100], // Color del relleno
+              prefixIcon: Icon(Icons.description, // Color del icono
+                  color: handler.isGiaEditEnabled
+                      ? // Depende si el switch esta activado o no
+                      Colors.green
+                      : Colors.grey,
+                  size: 20), // Tamaño del icono
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(12), // Radio de la esquina
+                borderSide: BorderSide(
+                    color: Colors.grey.shade300), // Borde del contenedor
               ),
             ),
             style: TextStyle(
+              fontSize: 16, // Tamaño de la fuente
               fontWeight: FontWeight.bold,
               color: handler.isGiaEditEnabled ? Colors.black : Colors.grey,
             ),
@@ -241,6 +221,135 @@ class ConfigDrawer extends StatelessWidget {
     );
   }
 
+  Widget _buildDateEditSection(SnigHandler handler, BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(5),
+      child: Column(
+        children: [
+          // --- FILA FECHA (Label + Switch) ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Cambiar Fecha",
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              Switch(
+                thumbIcon: _thumbIcon, // Usamos la variable global de icono
+                activeColor: Colors.green,
+                inactiveThumbColor: Colors.red,
+                value: handler.isDateEditEnabled,
+                onChanged: (val) => handler.setDateEditEnabled(val),
+              ),
+            ],
+          ),
+
+          // --- FILA NUEVA FECHA (TextField con Tap) ---
+          TextField(
+            readOnly:
+                true, // Para que no se abra el teclado, solo el calendario
+            onTap: handler.isDateEditEnabled
+                ? () => _selectDate(context, handler)
+                : null,
+            decoration: InputDecoration(
+              hintText: DateFormat('dd/MM/yyyy').format(handler.selectedDate),
+              filled: true,
+              isDense: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              fillColor:
+                  handler.isDateEditEnabled ? Colors.white : Colors.grey[100],
+              prefixIcon: Icon(Icons.calendar_today,
+                  color: handler.isDateEditEnabled ? Colors.green : Colors.grey,
+                  size: 20),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+            ),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: handler.isDateEditEnabled ? Colors.black : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  Widget _buildTimeEditSection(SnigHandler handler, BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(5),
+      child: Column(
+        children: [
+          // --- FILA HORA (Label + Switch) ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Hora Inicial Masiva",
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              Switch(
+                thumbIcon: _thumbIcon,
+                activeColor: Colors.green,
+                inactiveThumbColor: Colors.red,
+                value: handler.isTimeEditEnabled,
+                onChanged: (val) => handler.setTimeEditEnabled(val),
+              ),
+            ],
+          ),
+          
+          // --- FILA NUEVA HORA (TextField con Tap) ---
+          TextField(
+            readOnly: true,
+            onTap: handler.isTimeEditEnabled ? () => _selectTime(context, handler) : null,
+            decoration: InputDecoration(
+              hintText: handler.selectedTime.format(context),
+              filled: true,
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              fillColor: handler.isTimeEditEnabled ? Colors.white : Colors.grey[100],
+              prefixIcon: Icon(Icons.access_time, 
+                color: handler.isTimeEditEnabled ? Colors.green : Colors.grey,
+                size: 20),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+            ),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: handler.isTimeEditEnabled ? Colors.black : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _selectTime(BuildContext context, SnigHandler handler) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: handler.selectedTime,
+    );
+    if (picked != null && picked != handler.selectedTime) {
+      handler.setSelectedTime(picked);
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context, SnigHandler handler) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: handler.selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != handler.selectedDate) {
+      handler.setDate(picked);
+    }
+  }
 
   Widget _buildApplyButton(BuildContext context) {
     return Padding(
@@ -258,8 +367,6 @@ class ConfigDrawer extends StatelessWidget {
       ),
     );
   }
-
-  //<!> Esto tengo que cambiarlo para que el formato de los botones se mas pequiene ocupa mucho espacio
 
   Widget _buildActionButton(
       {required String label,

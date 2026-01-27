@@ -72,7 +72,6 @@ class SnigHandler extends ChangeNotifier {
     // notifyListeners(); //<!> Sacar si no es necesario
   }
 
-
   void agregarCaravana(CaravanaModel nueva) {
     try {
       _apiService.addCaravana(nueva);
@@ -180,8 +179,41 @@ class SnigHandler extends ChangeNotifier {
 
 
 
-// <!> Lo de abajo tengo que pasarlo a config_drawer_handler
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// <!> Lo de abajo tengo que pasarlo a config_drawer_handler
 
   /// Determina si el gia es editable
   bool isGiaEditEnabled = true;
@@ -191,9 +223,52 @@ class SnigHandler extends ChangeNotifier {
     isGiaEditEnabled = value;
     notifyListeners();
   }
+
+  /// Determina si la fecha es editable
+  bool isDateEditEnabled = true;
+
+  /// Setea el valor de isDateEditEnabled
+  void setDateEditEnabled(bool value) {
+    isDateEditEnabled = value;
+    notifyListeners();
+  }
+
+  /// Fecha seleccionada para la carga
+  DateTime _selectedDate = DateTime.now();
+
+  /// Getter de selectedDate
+  DateTime get selectedDate => _selectedDate;
+
+  /// Hora seleccionada para la carga
+  TimeOfDay _selectedTime = TimeOfDay.now();
+
+  /// Getter de selectedTime
+  TimeOfDay get selectedTime => _selectedTime;
+  
+  /// Determina si la hora es editable
+  bool isTimeEditEnabled = true;
+
+  /// Setea el valor de isTimeEditEnabled
+  void setTimeEditEnabled(bool value) {
+    isTimeEditEnabled = value;
+    notifyListeners();
+  }
+  
+  /// Setea el valor de selectedTime
+  void setSelectedTime(TimeOfDay time) {
+    _selectedTime = time;
+    notifyListeners();
+  }
+
+
+
   
 
-
+  /// Setea la fecha seleccionada
+  void setDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
 
   // <!> Aca me falta como cargar el archivo no voe que este por ningun lado
   // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
@@ -224,6 +299,7 @@ class SnigHandler extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
   Future<void> cargarArchivoPdf() async {
     _isLoading = true;
@@ -269,7 +345,7 @@ class SnigHandler extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
   Future<void> exportarArchivoTxt() async {
     try {
@@ -288,5 +364,4 @@ class SnigHandler extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 }
