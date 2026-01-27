@@ -34,7 +34,7 @@ class ConfigDrawer extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Gestión de Lecturas",
+                const Text("EDICIÓN DE LOTE",
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -53,7 +53,7 @@ class ConfigDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
 
                 //Botones de Importar y Exportar ----
                 Column(
@@ -98,10 +98,10 @@ class ConfigDrawer extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 const Divider(),
 
-                // Edicion masiva ----
+                // Caja Edicion masiva ----
                 Container(
                   // Contenedor de la sección de edición masiva
                   margin: const EdgeInsets.symmetric(
