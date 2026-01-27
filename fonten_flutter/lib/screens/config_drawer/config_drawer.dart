@@ -62,35 +62,37 @@ class ConfigDrawer extends StatelessWidget {
                   children: [
                     // Boton de Carga (CSV) ----
                     _buildActionButton(
+                      context: context,
                       label: "CARGAR CSV",
                       icon: Icons.table_view,
-                      onTap: () => handler.cargarArchivoCsv(),
+                      action: handler.cargarArchivoCsv,
                     ),
                     const SizedBox(height: 8),
 
                     // Boton de Carga (PDF) ----
                     _buildActionButton(
+                      context: context,
                       label: "CARGAR PDF",
                       icon: Icons.picture_as_pdf,
-                      onTap: () => handler.cargarArchivoPdf(),
+                      action: handler.cargarArchivoPdf,
                     ),
 
                     // Boton de Carga (TXT) ----
                     const SizedBox(height: 8),
                     _buildActionButton(
+                      context: context,
                       label: "IMPORTAR TXT",
                       icon: Icons.note_add,
-                      onTap: () => handler.cargarArchivoTxt(),
+                      action: handler.cargarArchivoTxt,
                     ),
 
                     // Boton de Exportar (TXT) ----
                     const SizedBox(height: 8),
                     _buildActionButton(
+                      context: context,
                       label: "EXPORTAR TXT",
                       icon: Icons.download,
-                      onTap: handler.totalCaravanasSeleccionadas > 0
-                          ? () => handler.exportarArchivoTxt()
-                          : null,
+                      action: handler.exportarArchivoTxt,
                       color: handler.totalCaravanasSeleccionadas > 0
                           ? null
                           : Colors.grey,
@@ -382,23 +384,59 @@ class ConfigDrawer extends StatelessWidget {
     );
   }
 
-  void _handleApplyButton(BuildContext context) {
-    
-    handler.applyChanges();
-    Navigator.pop(context);
-  }
+void _handleApplyButton(BuildContext context, SnigHandler handler) {
+  // 1. Ejecutamos la lógica que creamos arriba
+  handler.applyChanges();
+  
+  // 2. Mostramos un mensaje rápido de éxito (Opcional pero recomendado)
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text("Cambios aplicados correctamente"),
+      backgroundColor: Colors.green,
+      duration: Duration(seconds: 2),
+    ),
+  );
 
+  // 3. Cerramos el Drawer
+  Navigator.pop(context);
+}
+
+  /// Construye un botón de acción estandarizado para la gestión de archivos.
+  /// 
+  /// Este widget centraliza la lógica visual y funcional de los botones del Drawer.
+  /// [label]: El texto que se mostrará en el botón.
+  /// [icon]: El icono representativo de la acción (PDF, CSV, etc.).
+  /// [action]: Función asincrónica que ejecuta la lógica de negocio (SnigHandler).
+  /// 
+  /// Lógica integrada:
+  /// 1. Ejecuta la [action] de forma asincrónica.
+  /// 2. Si la acción es exitosa, cierra automáticamente el menú lateral (Drawer).
+  /// 3. Gestiona errores internos para evitar cierres inesperados de la aplicación.
+  /// 4. Desactiva visualmente el botón si la [action] es nula.
   Widget _buildActionButton(
-      {required String label, // Texto del boton
+      {required BuildContext context, // Contexto de la pantalla
+      required String label, // Texto del boton
       required IconData icon, // Icono del boton
-      required VoidCallback? onTap, // Accion al presionar el boton
+      required Future<void> Function()? action, // Ahora recibe un Future<void>
       Color? color}) {
     return InkWell(
-      onTap: onTap == null 
+      onTap: action == null 
         ? null 
-        : () => onTap(),  // Accion al presionar el boton
-
-        
+        : () async {
+          try {
+            // 1. Ejecutamos la función que le pasamos (cargar CSV, PDF, etc.)
+            await action(); 
+            
+            // 2. Si llegamos acá es porque no hubo error, cerramos el Drawer
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
+          } catch (e) {
+            // 3. Si hubo error, lo mostramos y NO cerramos el Drawer
+            debugPrint("Error en la acción $label: $e");
+            // Opcional: Podés mostrar un SnackBar acá con el error
+          }
+        },
       borderRadius: BorderRadius.circular(12), // Radio de la esquina
       child: Container(
         padding: const EdgeInsets.all(12),

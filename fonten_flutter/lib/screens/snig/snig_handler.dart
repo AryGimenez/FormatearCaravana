@@ -364,4 +364,55 @@ class SnigHandler extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void applyChanges() {
+    // 1. Filtramos solo las que están seleccionadas
+    var seleccionadas = _apiService.getListCaravanas.where((c) => c.seleccionada).toList();
+    
+    if (seleccionadas.isEmpty) return; // Si no hay seleccionadas, no hacemos nada
+
+    // 2. Si vamos a cambiar la hora, definimos el punto de partida
+    DateTime baseTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+
+    for (int i = 0; i < seleccionadas.length; i++) {
+      var caravana = seleccionadas[i];
+
+      // --- LÓGICA DE GIA ---
+      if (isGiaEditEnabled) {
+        caravana.gia = gia; // El valor que viene del TextField
+      }
+
+      // --- LÓGICA DE FECHA Y HORA ---
+      if (isDateEditEnabled || isTimeEditEnabled) {
+        DateTime fechaOriginal = caravana.hf_lectura;
+        
+        int anio = isDateEditEnabled ? selectedDate.year : fechaOriginal.year;
+        int mes = isDateEditEnabled ? selectedDate.month : fechaOriginal.month;
+        int dia = isDateEditEnabled ? selectedDate.day : fechaOriginal.day;
+        
+        int hora = isTimeEditEnabled ? selectedTime.hour : fechaOriginal.hour;
+        int min = isTimeEditEnabled ? selectedTime.minute : fechaOriginal.minute;
+
+        // Creamos la nueva fecha
+        DateTime nuevaFecha = DateTime(anio, mes, dia, hora, min, fechaOriginal.second);
+
+        // Si la hora es masiva, sumamos 'i' minutos para que sean consecutivas
+        if (isTimeEditEnabled) {
+          nuevaFecha = nuevaFecha.add(Duration(minutes: i));
+        }
+
+        caravana.hf_lectura = nuevaFecha;
+      }
+    }
+
+    // IMPORTANTE: Notificar a la UI que los datos cambiaron
+    notifyListeners();
+  }
+
 }
