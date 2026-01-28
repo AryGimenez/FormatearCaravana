@@ -19,7 +19,7 @@ mixin PdfSimuladorService on BaseService {
         withData: true, // Importante para obtener los bytes
       );
 
-      if (result == null) return listCaravanas; // El usuario canceló la selección
+      if (result == null) return []; // El usuario canceló la selección
 
       List<int> bytes;
       
@@ -50,10 +50,11 @@ mixin PdfSimuladorService on BaseService {
 
     // Comparamos y marcamos
     // Recorremos la lista de objetos que ya tenemos (la lectura del campo)
-    for (var caravanaLectura in pLisCaravanas) {
+    for (CaravanaModel caravanaLectura in pLisCaravanas) {
       
       // Si el número de caravana de mi lista EXISTE en el PDF del simulador...
       if (pListCaravansSimulador.contains(caravanaLectura.caravana)) {
+        
         caravanaLectura.esOk = true; // Está todo bien, pertenece al DICOSE
       } else {
         // Si NO está en el PDF, es una de las que "no pertenecen" o tienen problemas

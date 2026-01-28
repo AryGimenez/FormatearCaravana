@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'snig_handler.dart';
 import 'caravana_item.dart';
-import '../config_drawer/config_drawer.dart';
+import '../config_drawer/config_drawer_screen.dart';
 import '../../core/theme/app_theme.dart';
 
 class SnigScreen extends StatefulWidget {
