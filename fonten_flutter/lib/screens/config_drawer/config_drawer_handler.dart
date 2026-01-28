@@ -7,10 +7,10 @@ class ConfigDrawerHandler extends ChangeNotifier {
 
   /// Se encarga de indicar si se ha producido un error. Lo utiliso para mostrar
   /// mensaje de erro
-  String? _errorMessage;
+  String? _errorMessage; // <!> Esto creo que no va 
 
   /// Indica si se está cargando un archivo
-  bool _isLoading = false;
+  bool _isLoading = false; // <!> Esto creo que no va 
 
   /// Determina si el gia es editable
   bool isGiaEditEnabled = true;
@@ -110,7 +110,7 @@ class ConfigDrawerHandler extends ChangeNotifier {
     try {
       final nuevas = await _apiService.pickAndParseSimuladorPDF();
       if (nuevas.isNotEmpty) {
-        _apiService.clearCaravanas();
+        
         for (var c in nuevas) {
           _apiService.addCaravana(c);
         }
