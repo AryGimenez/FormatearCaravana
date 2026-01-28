@@ -14,7 +14,6 @@ enum DuplicadosStrategy {
 }
 
 mixin CsvService on BaseService {
-  
   /// Importa una lista de caravanas desde un archivo [file] CSV.
   ///
   /// El parámetro [estrategia] define cómo manejar colisiones de EID:
@@ -111,34 +110,51 @@ mixin CsvService on BaseService {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom, // Restringe la selección a tipos específicos
         allowedExtensions: ['csv'], // Solo permite archivos con extensión .csv
-        withData: true, // Indica que queremos los datos del archivo, se utiliza para web
+        withData:
+            true, // Indica que queremos los datos del archivo, se utiliza para web
       );
+      List<CaravanaModel> xListCaravanas = [];
 
-      if (result != null) {// Si el usuario no canceló la selección (result no es nulo)
+      if (result == null) return xListCaravanas; // Si el usuario cancela la selección, retorna lista vacia
+        
 
-        List<List<dynamic>> fields; // Lista de listas que contendrá los datos del CSV
+        List<List<dynamic>>
+            fields; // Lista de listas que contendrá los datos del CSV
 
-        if (kIsWeb) { // Si es web no se puede acceder al path del archivo, por lo tanto se utilizan los bytes
+        const converter = CsvToListConverter(
+          fieldDelimiter: ',', 
+          shouldParseNumbers: false, 
+        );           
+
+        if (kIsWeb) {
+          // Si es web no se puede acceder al path del archivo, por lo tanto se utilizan los bytes
           // Lógica para WEB: Usamos los bytes directamente
-          final bytes = result.files.single.bytes!; // Obtiene los bytes del archivo
-          final csvString = utf8.decode(bytes); // Decodifica los bytes a texto UTF-8
-          fields = const CsvToListConverter().convert(csvString); // Convierte el texto plano a una estructura de Listas (filas y columnas)
+          final bytes =
+              result.files.single.bytes!; // Obtiene los bytes del archivo
+          final csvString =
+              utf8.decode(bytes); // Decodifica los bytes a texto UTF-8
+          fields = converter.convert(
+              csvString); // Convierte el texto plano a una estructura de Listas (filas y columnas)
         } else {
           // Lógica para MÓVIL/DESKTOP: Usamos el path
-          final file = File(result.files.single.path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
-          final input = file.openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
+          final file = File(result.files.single
+              .path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
+          final input = file
+              .openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
           fields = await input // Pipeline de transformación:
               .transform(utf8.decoder) // Decodifica los bytes a texto UTF-8
-              .transform(const CsvToListConverter()) // Convierte el texto plano a una estructura de Listas (filas y columnas)
-            .toList(); // Convierte el Stream en una lista final de datos crudos
+              .transform(
+                  const CsvToListConverter()) // Convierte el texto plano a una estructura de Listas (filas y columnas)
+              .toList(); // Convierte el Stream en una lista final de datos crudos
         }
 
         return _mapFieldsToCaravanas(
             fields); // Envía los datos crudos al mapeador para convertirlos en objetos CaravanaModel
-      }
+      
     } catch (e) {
       //<!> Aca tendria que armar un log para pasarlo a un log sentralizado
-      print("Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
+      print(
+          "Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
     }
     return null; // Si el usuario cancela la selección, retorna nulo
   }
@@ -148,6 +164,7 @@ mixin CsvService on BaseService {
   /// Maneja la detección de cabeceras, el parseo de fechas y la asignación de valores
   /// por defecto para asegurar que la App no falle ante datos incompletos.
   List<CaravanaModel> _mapFieldsToCaravanas(List<List<dynamic>> fields) {
+    // 858000051105095,,2024-07-02,11:23:09,Pint Formato que deberia resivir
     List<CaravanaModel> caravanas = [];
 
     int startIndex =
@@ -155,15 +172,16 @@ mixin CsvService on BaseService {
     if (fields.isNotEmpty && fields[0].isNotEmpty) {
       // Si el archivo no está vacío y tiene al menos una fila
       String firstVal = fields[0][0].toString();
-      if (firstVal.toLowerCase().contains("eid") || firstVal.isEmpty) {
+      if (firstVal.toLowerCase().contains("EID") || firstVal.isEmpty) {
         // Si contiene "eid" (común en Tru-Test) o está vacío, empezamos desde la fila 1
         startIndex =
             1; // <!> Creo que aca deberia corroborar que el formato sea el correcto si no salir porque agarre algo mal
         // <!> Para eso deberia prosesar la cabesera EID,VID,Date,Time,Custom
       }
     }
+    int xCantidadColunmas = fields.length;
 
-    for (var i = startIndex; i < fields.length; i++) {
+    for (var i = startIndex; i < xCantidadColunmas; i++) {
       // Recorre cada fila del CSV a partir del índice definido
       final row = fields[i]; // Obtiene la fila actual
       if (row.length >= 1) {

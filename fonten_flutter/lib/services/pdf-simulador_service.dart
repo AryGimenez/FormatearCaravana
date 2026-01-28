@@ -56,14 +56,6 @@ mixin PdfSimuladorService on BaseService {
       // Si el número de caravana de mi lista EXISTE en el PDF del simulador...
       
       if (!caravanaLectura.seleccionada) continue; // Si no esta seleccionada no la comparo
-      
-      
-      
-      
-      if (caravanaLectura.caravana == "858000040110801") { //<!> Esto es temporal para probar la logica  
-        print("Entro"); // Si no esta seleccionada no la comparo
-      }
-
 
       if (pListCaravansSimulador.contains(caravanaLectura.caravana)) {  
         caravanaLectura.esOk = true; // Está todo bien, pertenece al DICOSE

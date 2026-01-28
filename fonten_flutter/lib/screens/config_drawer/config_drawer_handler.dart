@@ -132,7 +132,7 @@ class ConfigDrawerHandler extends ChangeNotifier {
     try {
       final nuevas = await _apiService.pickAndParseTxt();
       if (nuevas != null && nuevas.isNotEmpty) {
-        _apiService.clearCaravanas();
+        
         for (var c in nuevas) {
           _apiService.addCaravana(c);
         }

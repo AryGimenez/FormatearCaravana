@@ -16,7 +16,27 @@ class CaravanaModel {
     required this.gia,
     this.seleccionada = false,
     this.esOk = true
-  });
+  }){
+    //Validacion de formato Caravana 
+    _validarFormatoCaravana(caravana);
+
+  }
+
+   /// Validación estricta según reglamento del SNIG Uruguay
+  static void _validarFormatoCaravana(String valor) {
+    // 1. Debe tener exactamente 15 caracteres
+    if (valor.length != 15) {
+      throw FormatException("La caravana debe tener exactamente 15 dígitos. Recibido: ${valor.length}");
+    }
+    // 2. Debe empezar con 858
+    if (!valor.startsWith('858')) {
+      throw FormatException("Formato SNIG inválido: debe comenzar con '858'.");
+    }
+    // 3. Deben ser solo números
+    if (!RegExp(r'^\d+$').hasMatch(valor)) {
+      throw FormatException("La caravana solo puede contener números.");
+    }
+  }
 
   // Este método creará el formato [|A000...|] que pide el SNIG
   String toSnigFormat() {
@@ -43,16 +63,16 @@ class CaravanaModel {
   }
 
   // Nuevo constructor para desarmar la trama del SNIG 
-  factory CaravanaModel.fromSnigString(String line, String giaPorDefecto) {
+  factory CaravanaModel.fromSnigString(String pLine, {String? pGiaPorDefecto}) {
     // line = "[|A000000858000040110807|02072024|112630|C204416|]"
     
     // 1. Limpiamos los corchetes y dividimos por el separador |
-    final cleanLine = line.replaceAll('[', '').replaceAll(']', '');
+    final cleanLine = pLine.replaceAll('[', '').replaceAll(']', '');
     final parts = cleanLine.split('|');
-    
+
     // parts[1] debería ser "A000000858000040110807"
-    // Le quitamos los primeros 7 caracteres ("A000000")
-    String caravanaExtraida = parts[1].substring(7);
+    // Le quitamos los primeros 8 caracteres ("A000000")
+    String caravanaExtraida = parts[1].substring(8);
 
     // parts[2] es la fecha "02072024" (DDMMYYYY)
     String f = parts[2];
@@ -67,12 +87,22 @@ class CaravanaModel {
     int seg = int.parse(h.substring(4, 6));
 
     // parts[4] es el GIA "C204416"
-    String giaExtraida = parts[4].isNotEmpty ? parts[4] : giaPorDefecto;
+    String xGia = "";
+    if (pGiaPorDefecto == null)
+    {
+      xGia = parts[4];
+    }
+    else
+    {
+      xGia = pGiaPorDefecto;
+    }
+    // <!> Ese codigo no lo entiedno para mi esta mal.
+    // String giaExtraida = parts[4].isNotEmpty ? parts[4] : pGiaPorDefecto;
 
     return CaravanaModel(
       caravana: caravanaExtraida,
       hf_lectura: DateTime(anio, mes, dia, hora, min, seg),
-      gia: giaExtraida,
+      gia: xGia,
       esOk: true,
       seleccionada: false,
     );
