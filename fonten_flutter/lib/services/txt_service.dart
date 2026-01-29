@@ -11,7 +11,7 @@ mixin TxtService on BaseService {
   
   
   
-  // fornten_flutter\lib\services\txt_service.dart/// Permite seleccionar un archivo .txt y convertirlo en lista de caravanas.
+ 
   /// Asume que cada línea es un EID diferente.
   Future<List<CaravanaModel>?> pickAndParseTxt() async {
     try {
@@ -34,8 +34,6 @@ mixin TxtService on BaseService {
           // WEB ------
           final bytes = result.files.single.bytes!;
           final txtString = utf8.decode(bytes);
-          
-          
           lines = const LineSplitter().convert(txtString);
         } else {
           // DESKTOP ----
@@ -102,8 +100,10 @@ mixin TxtService on BaseService {
       if (text.isNotEmpty && text.contains('|')) {
         try {
           // Usamos el nuevo constructor que creamos arriba
-          resultado.add(CaravanaModel.fromSnigString(text, this.gia));
+          resultado.add(CaravanaModel.fromSnigString(text));
         } catch (e) {
+          // <!> Aca tendria que saltar un cartel de error para el fonte 
+          // <!> O capas mejor para un log sentralizado
           debugPrint("Error al procesar línea: $text - Error: $e");
           // Si una línea está mal, la salteamos y seguimos con la otra
         }
