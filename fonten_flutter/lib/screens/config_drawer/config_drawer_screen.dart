@@ -70,7 +70,10 @@ class ConfigDrawer extends StatelessWidget {
                       context: context,
                       label: "CARGAR CSV",
                       icon: Icons.table_view,
-                      action: drawerHandler.cargarArchivoCsv,
+                      action: () async {
+                        await drawerHandler.cargarArchivoCsv();
+                        snigHandler.refrescarDesdeService();
+                      },
                     ),
                     const SizedBox(height: 8),
 

@@ -21,6 +21,7 @@ mixin CsvService on BaseService {
   /// * [DuplicadosStrategy.soloNuevos]: Compara contra la lista actual y solo suma los EID inexistentes.
   /// * [DuplicadosStrategy.cancelarSiHay]: Si un solo EID ya existe en la lista, aborta la operación.
   Future<void> importarDesdeCsv(
+    //<!> Creo que esto no lo estoy usando
     File file, {
     required DuplicadosStrategy estrategia,
   }) async {
@@ -102,9 +103,10 @@ mixin CsvService on BaseService {
   ///
   /// Abre el selector de archivos del sistema para cargar un CSV y transformarlo en modelos de Caravana.
   ///
-  /// Retorna una lista de [CaravanaModel] si el proceso es exitoso, o [null] si el usuario cancela.
+  /// Retorna una lista de [CaravanaModel] si el proceso es exitoso, 
   /// Lanza una excepción si ocurre un error durante la lectura o el parseo.
-  Future<List<CaravanaModel>?> pickAndParseCsv() async {
+  Future<List<CaravanaModel>> pickAndParseCsv() async {
+    List<CaravanaModel> xListCaravanas = [];
     try {
       // Llama a la interfaz del sistema para seleccionar un archivo
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -113,108 +115,156 @@ mixin CsvService on BaseService {
         withData:
             true, // Indica que queremos los datos del archivo, se utiliza para web
       );
-      List<CaravanaModel> xListCaravanas = [];
-
-      if (result == null) return xListCaravanas; // Si el usuario cancela la selección, retorna lista vacia
-        
-
-        List<List<dynamic>>
-            fields; // Lista de listas que contendrá los datos del CSV
-
-        const converter = CsvToListConverter(
-          fieldDelimiter: ',', 
-          shouldParseNumbers: false, 
-        );           
-
-        if (kIsWeb) {
-          // Si es web no se puede acceder al path del archivo, por lo tanto se utilizan los bytes
-          // Lógica para WEB: Usamos los bytes directamente
-          final bytes =
-              result.files.single.bytes!; // Obtiene los bytes del archivo
-          final csvString =
-              utf8.decode(bytes); // Decodifica los bytes a texto UTF-8
-          fields = converter.convert(
-              csvString); // Convierte el texto plano a una estructura de Listas (filas y columnas)
-        } else {
-          // Lógica para MÓVIL/DESKTOP: Usamos el path
-          final file = File(result.files.single
-              .path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
-          final input = file
-              .openRead(); // Abre un flujo de lectura (Stream) del archivo para no cargar todo en memoria de golpe
-          fields = await input // Pipeline de transformación:
-              .transform(utf8.decoder) // Decodifica los bytes a texto UTF-8
-              .transform(
-                  const CsvToListConverter()) // Convierte el texto plano a una estructura de Listas (filas y columnas)
-              .toList(); // Convierte el Stream en una lista final de datos crudos
-        }
-
-        return _mapFieldsToCaravanas(
-            fields); // Envía los datos crudos al mapeador para convertirlos en objetos CaravanaModel
       
+
+      if (result == null)
+        return xListCaravanas; // Si el usuario cancela la selección, retorna lista vacia
+
+      List<List<dynamic>>
+          fields; // Lista de listas que contendrá los datos del CSV
+      
+      String csvString;
+
+
+
+      if (kIsWeb) {
+        // Si es web no se puede acceder al path del archivo, por lo tanto se utilizan los bytes
+        // Lógica para WEB: Usamos los bytes directamente
+        final bytes =
+            result.files.single.bytes!; // Obtiene los bytes del archivo
+        csvString =
+            utf8.decode(bytes); // Decodifica los bytes a texto UTF-8
+        
+        
+        // fields = converter.convert(
+        //     csvString); // Convierte el texto plano a una estructura de Listas (filas y columnas)
+      } else {
+        // Lógica para MÓVIL/DESKTOP: Usamos el path
+        final file = File(result.files.single
+            .path!); // Obtiene la referencia al archivo físico mediante su ruta en el dispositivo
+        csvString = await file.readAsString(
+            encoding: utf8); // Lee el archivo como texto UTF-8
+        
+      }
+
+      fields = _procesarCsvManual(csvString);
+
+      xListCaravanas = _mapFieldsToCaravanas(
+          fields); // Envía los datos crudos al mapeador para convertirlos en objetos CaravanaModel
     } catch (e) {
       //<!> Aca tendria que armar un log para pasarlo a un log sentralizado
       print(
           "Error parseando CSV: $e"); // Registra el error en consola para depuración       rethrow; // Re-lanza el error para que el SnigHandler o la UI puedan capturarlo y mostrar un mensaje
     }
-    return null; // Si el usuario cancela la selección, retorna nulo
+    return xListCaravanas; // Si el usuario cancela la selección, retorna nulo
   }
+
+  /// Procesa un CSV manualmente, línea por línea, para manejar casos donde el conversor falla.
+  List<List<dynamic>> _procesarCsvManual(String rawString) {
+    // Dividimos el texto por cualquier tipo de salto de línea (Windows o Linux)
+    List<String> lines = rawString.split(RegExp(r'\r?\n'));
+
+    List<List<dynamic>> rows = [];
+    for (var line in lines) {
+      if (line.trim().isEmpty) continue; // Saltamos líneas vacías
+
+      // Usamos el conversor solo para separar las comas de ESA línea
+      var parsedLine = const CsvToListConverter().convert(line);
+      if (parsedLine.isNotEmpty) {
+        rows.add(parsedLine.first);
+      }
+    }
+    return rows;
+  }
+
+
+
+
+
+
+
+
+
+  // <!> Creo que no va
+  // // Método de apoyo por si el CSV viene sin saltos de línea claros
+  // List<List<dynamic>> _reprocesarFilaUnica(List<dynamic> filaGigante) {
+  //   // <!> Este creo que no va
+  //   List<List<dynamic>> nuevasFilas = [];
+  //   int columnasPorFila = 5; // EID, VID, Date, Time, Custom
+
+  //   for (var i = 0; i < filaGigante.length; i += columnasPorFila) {
+  //     var fin = (i + columnasPorFila < filaGigante.length)
+  //         ? i + columnasPorFila
+  //         : filaGigante.length;
+  //     nuevasFilas.add(filaGigante.sublist(i, fin));
+  //   }
+  //   return nuevasFilas;
+  // }
+
+
+
+
+
+
 
   /// Transforma los datos crudos del CSV (listas de listas) en una lista de objetos [CaravanaModel].
   ///
   /// Maneja la detección de cabeceras, el parseo de fechas y la asignación de valores
   /// por defecto para asegurar que la App no falle ante datos incompletos.
   List<CaravanaModel> _mapFieldsToCaravanas(List<List<dynamic>> fields) {
-    // 858000051105095,,2024-07-02,11:23:09,Pint Formato que deberia resivir
-    List<CaravanaModel> caravanas = [];
+    // Formato que deberia resivir
+    // 858000051105095,,2024-07-02,11:23:09,Pint 
+    List<CaravanaModel> xListCaravanas = [];
 
-    int startIndex =
-        0; // Determina si la primera fila es una cabecera para ignorarla
-    if (fields.isNotEmpty && fields[0].isNotEmpty) {
-      // Si el archivo no está vacío y tiene al menos una fila
-      String firstVal = fields[0][0].toString();
-      if (firstVal.toLowerCase().contains("EID") || firstVal.isEmpty) {
-        // Si contiene "eid" (común en Tru-Test) o está vacío, empezamos desde la fila 1
-        startIndex =
-            1; // <!> Creo que aca deberia corroborar que el formato sea el correcto si no salir porque agarre algo mal
-        // <!> Para eso deberia prosesar la cabesera EID,VID,Date,Time,Custom
-      }
+    if (fields.isEmpty) return xListCaravanas; // Si no hay datos, retorna lista vacia
+    
+    // 1. VALIDACIÓN DE ARCHIVO CORRECTO
+    // Verificamos si la primera celda contiene "EID" (estándar de Tru-Test)
+    String firstCell = fields[0].isNotEmpty ? fields[0][0].toString().toUpperCase() : "";
+    
+    // Formato Tru-Test esperado: EID, VID, Date, Time, Custom
+    if (!firstCell.contains("EID")) {
+      // Si no es un archivo de lectura, lanzamos una excepción para avisar a la UI
+      throw FormatException("El archivo seleccionado no tiene el formato de lectura Tru-Test válido.");
     }
-    int xCantidadColunmas = fields.length;
 
-    for (var i = startIndex; i < xCantidadColunmas; i++) {
+    
+
+    for (var i = 1; i < fields.length; i++) { // Comienza desde la segunda fila (índice 1)
       // Recorre cada fila del CSV a partir del índice definido
       final row = fields[i]; // Obtiene la fila actual
-      if (row.length >= 1) {
-        // Si la fila tiene al menos un valor
-        // Formato Tru-Test esperado: EID, VID, Date, Time, Custom
-        String xNumCaravana = row[0].toString();
-        // String? vid = row.length > 1 ? row[1].toString() : null; // El nuevo modelo no tiene VID
-        String xFecha = row.length > 2
-            ? row[2].toString()
-            : ""; // Fecha en formato dd/MM/yyyy
-        String xHora = row.length > 3
-            ? row[3].toString()
-            : "00:00:00"; // Hora en formato HH:mm:ss
-        String xGia = row.length > 4
-            ? row[4].toString()
-            : ""; // Usaremos esto para 'gia' si está vacío
 
-        // Parsea la fecha
-        DateTime fecha;
-        try {
-          fecha = DateTime.parse("$xFecha $xHora");
-        } catch (_) {
-          fecha = DateTime.now();
-        }
-        //<!> Aca tengo que determinar si la caravana esta repetido que ago
-        caravanas.add(CaravanaModel(
-          // Agrega el modelo a la lista
-          caravana: xNumCaravana, // Numero de caravana
-          hf_lectura: fecha, // Fecha y hora de la lectura
-          gia: xGia, // GIA
-        ));
-      } // Fin if
+      // Saltamos filas que estén totalmente vacías <!> Creo que no va porque el paso antrior elimina los espacion en blanco 
+      if (row.isEmpty || row[0].toString().trim().isEmpty) continue;
+    
+      String xNumCaravana = row[0].toString().trim();
+      // String? vid = row.length > 1 ? row[1].toString() : null; // El nuevo modelo no tiene VID
+      String xFecha = row.length > 2
+          ? row[2].toString()
+          : ""; // Fecha en formato dd/MM/yyyy
+      String xHora = row.length > 3
+          ? row[3].toString()
+          : "00:00:00"; // Hora en formato HH:mm:ss
+      String xGia = row.length > 4
+          ? row[4].toString()
+          : ""; // Usaremos esto para 'gia' si está vacío
+
+      // Parsea la fecha
+      DateTime xHf_lectura;
+      try {
+        xHf_lectura = DateTime.parse("$xFecha $xHora");
+      } catch (_) {
+        xHf_lectura = DateTime.now();
+      }
+      //<!> Aca tengo que determinar si la caravana esta repetido que ago
+      xListCaravanas.add(CaravanaModel(
+        // Agrega el modelo a la lista
+        caravana: xNumCaravana, // Numero de caravana
+        hf_lectura: xHf_lectura, // Fecha y hora de la lectura
+        gia: xGia, // GIA
+      ));
+      
     } // Fin for
-    return caravanas;
+    return xListCaravanas;
   }
 }

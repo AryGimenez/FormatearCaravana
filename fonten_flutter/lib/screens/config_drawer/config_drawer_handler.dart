@@ -81,17 +81,17 @@ class ConfigDrawerHandler extends ChangeNotifier {
     notifyListeners(); // Solo notificamos que empezó a cargar (para el spinner)
 
     try {
-      final List<CaravanaModel>? xListCaravanas =
+      final List<CaravanaModel> xListCaravanas =
           await _apiService.pickAndParseCsv(); // Trae el archivo csv
-      if (xListCaravanas != null && xListCaravanas.isNotEmpty) {
-        _apiService.clearCaravanas();
+      if (xListCaravanas.isNotEmpty) {
+        
 
         // _apiService.addCaravana(pCaravana)
 
-        for (var c in xListCaravanas) {
+        for (CaravanaModel xCaravana in xListCaravanas) {
           // <!> Aca deberia pasar la lista entera y preguntar si quiero cargar o no las caravans repetidsas
           // <!> y trabajr con esas ecepciones
-          _apiService.addCaravana(c);
+          _apiService.addCaravana(xCaravana);
         }
       }
     } catch (e) {
