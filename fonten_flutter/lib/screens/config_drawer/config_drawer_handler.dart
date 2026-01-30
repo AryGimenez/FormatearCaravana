@@ -145,13 +145,14 @@ class ConfigDrawerHandler extends ChangeNotifier {
     }
   }
 
-  // <!> Esto Tengo que sacarlo de aca va en config_drawer_handler
+  
   Future<void> exportarArchivoTxt() async {
     try {
       final seleccionadas =
           _apiService.getListCaravanas.where((c) => c.seleccionada).toList();
 
       if (seleccionadas.isEmpty) {
+        //<!> Esto deberia lanzar una exepcion
         _errorMessage = "No hay caravanas seleccionadas para exportar.";
         notifyListeners();
         return;

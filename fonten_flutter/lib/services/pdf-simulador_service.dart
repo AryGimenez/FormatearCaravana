@@ -9,9 +9,21 @@ import 'package:fonten_flutter/models/caravana_models.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 mixin PdfSimuladorService on BaseService {
+  /// Indica si se está cargando un simulador
+  bool _isLoadingSimulador = false; // Determina que se cargo un simulador
+
+  /// Indica si se está cargando un simulador
+  bool get isLoadingSimulador => _isLoadingSimulador;
+
+  void setLoadingSimulador(bool pValue) {
+    _isLoadingSimulador = pValue;
+    
+  }
 
 
- Future<List<CaravanaModel>> pickAndParseSimuladorPDF() async {
+  
+
+  Future<List<CaravanaModel>> pickAndParseSimuladorPDF() async {
     try {
       // Seleccionar el archivo
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -46,8 +58,8 @@ mixin PdfSimuladorService on BaseService {
   }
 
  
-  //<!> Revisar codio cuando vlaide el model para que solo asepte el fomatio apropiado
-   Future<List<CaravanaModel>> _importSimuladorPDF(List<String> pListCaravansSimulador, List<CaravanaModel> pLisCaravanas ) async {
+ 
+  List<CaravanaModel> _importSimuladorPDF(List<String> pListCaravansSimulador, List<CaravanaModel> pLisCaravanas ) {
 
     // Comparamos y marcamos
     // Recorremos la lista de objetos que ya tenemos (la lectura del campo)
@@ -61,7 +73,8 @@ mixin PdfSimuladorService on BaseService {
         caravanaLectura.esOk = true; // Está todo bien, pertenece al DICOSE
       } else {
         // Si NO está en el PDF, es una de las que "no pertenecen" o tienen problemas
-        caravanaLectura.esOk = false; 
+        caravanaLectura.esOk = false;
+        _isLoadingSimulador = true;
       }
 
     }
@@ -70,9 +83,17 @@ mixin PdfSimuladorService on BaseService {
     return pLisCaravanas;
   }
 
+  List<CaravanaModel> descargarSimulador(){
+    for (CaravanaModel xCaravana in listCaravanas) {
+      xCaravana.esOk = true;
+    }
+    _isLoadingSimulador = false;
+    return listCaravanas;
+  }
+
   Future<List<String>> _leerCaravanasPDF(List<int> bytes) async {
 
-    List<String> caravanasEncontradas = [];
+  List<String> caravanasEncontradas = [];
 
     try {
 

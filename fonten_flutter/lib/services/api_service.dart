@@ -32,6 +32,7 @@ class ApiService extends BaseService
   /// recuperar datos persistentes (como el token) al momento de arrancar el servicio.
   ApiService._internal() {
     _cargarDatosEjemplo();
+    setLoadingSimulador(true);
   }
 
   // Ejemplo de carga inicial (opcional)
