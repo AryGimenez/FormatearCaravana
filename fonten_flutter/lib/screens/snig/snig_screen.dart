@@ -292,7 +292,9 @@ class _SnigScreenState extends State<SnigScreen> {
                 _buildBottomButton(
                   label: "BORRAR (${handler.totalCaravanasSeleccionadas})",
                   icon: Icons.delete_outline,
-                  color: handler.totalCaravanasSeleccionadas > 0 ? Colors.red : Colors.grey[300]!,
+                  color: handler.totalCaravanasSeleccionadas > 0 ?
+                   Colors.red : 
+                   Colors.grey[300]!,
                   onTap: handler.totalCaravanasSeleccionadas > 0 
                       ? () => handler.eliminarSeleccionadas() 
                       : null,
@@ -303,8 +305,12 @@ class _SnigScreenState extends State<SnigScreen> {
                 _buildBottomButton(
                   label: "BORRAR SIMULAR",
                   icon: Icons.picture_as_pdf,
-                  color: AppTheme.secondary,
-                  onTap: null
+                  color: handler.isLoadingSimulador ? 
+                    AppTheme.secondary : 
+                    Colors.grey[300]!,
+                  onTap: handler.isLoadingSimulador ? 
+                    () => handler.descargarSimulador()
+                    : null,
                 ),
                 const SizedBox(width: 8),
 

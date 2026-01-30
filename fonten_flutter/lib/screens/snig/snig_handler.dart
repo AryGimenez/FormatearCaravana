@@ -189,6 +189,13 @@ class SnigHandler extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool get isLoadingSimulador => _apiService.isLoadingSimulador;
+
+  void descargarSimulador()  {
+    _apiService.descargarSimulador(); // O el método que uses
+    notifyListeners(); 
+  }
+
 
 
 }

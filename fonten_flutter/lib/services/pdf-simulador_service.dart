@@ -10,10 +10,16 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 mixin PdfSimuladorService on BaseService {
   /// Indica si se está cargando un simulador
-  bool _isLoading = false; // Determina que se cargo un simulador
+  bool _isLoadingSimulador = false; // Determina que se cargo un simulador
 
   /// Indica si se está cargando un simulador
-  bool get isLoading => _isLoading;
+  bool get isLoadingSimulador => _isLoadingSimulador;
+
+  void setLoadingSimulador(bool pValue) {
+    _isLoadingSimulador = pValue;
+    
+  }
+
 
   
 
@@ -68,7 +74,7 @@ mixin PdfSimuladorService on BaseService {
       } else {
         // Si NO está en el PDF, es una de las que "no pertenecen" o tienen problemas
         caravanaLectura.esOk = false;
-        _isLoading = true;
+        _isLoadingSimulador = true;
       }
 
     }
@@ -81,7 +87,7 @@ mixin PdfSimuladorService on BaseService {
     for (CaravanaModel xCaravana in listCaravanas) {
       xCaravana.esOk = true;
     }
-    _isLoading = false;
+    _isLoadingSimulador = false;
     return listCaravanas;
   }
 
