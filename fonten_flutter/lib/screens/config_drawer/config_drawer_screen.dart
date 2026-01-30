@@ -77,16 +77,23 @@ class ConfigDrawer extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // Boton de Carga (PDF) ----
+                    // Boton de Carga  Simulador (PDF) ----
                     _buildActionButton(
                       context: context,
-                      label: "CARGAR PDF",
+                      label: "CARGAR SIMULADOR (${snigHandler.totalCaravanasSeleccionadas})",
                       icon: Icons.picture_as_pdf,
-                      action: () async {
+                      action: snigHandler.totalCaravanasSeleccionadas > 0 ? // Si hay caravanas seleccionadas 
+                      () async { // Logica de cargar Simulador PDF 
                         await drawerHandler.cargarArchivoPdf();
                         snigHandler.refrescarDesdeService();
-                      },
+                      }
+                      :
+                      null, // Si no hay Caravanas seleccionada
+                      color: snigHandler.totalCaravanasSeleccionadas > 0
+                          ? null
+                          : Colors.grey,
                     ),
+                    
 
                     // Boton de Carga (TXT) ----
                     const SizedBox(height: 8),
@@ -104,13 +111,16 @@ class ConfigDrawer extends StatelessWidget {
                     const SizedBox(height: 8),
                     _buildActionButton(
                       context: context,
-                      label: "EXPORTAR TXT",
+                      label: "EXPORTAR TXT (${snigHandler.totalCaravanasSeleccionadas})",
                       icon: Icons.download,
-                      action: drawerHandler.exportarArchivoTxt,
+                      action: snigHandler.totalCaravanasSeleccionadas > 0 ? 
+                        drawerHandler.exportarArchivoTxt : 
+                        null,
                       color: snigHandler.totalCaravanasSeleccionadas > 0
                           ? null
                           : Colors.grey,
                     ),
+
                   ],
                 ),
 
@@ -140,7 +150,7 @@ class ConfigDrawer extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          "EDICIÓN DE LOTE (${snigHandler.totalCaravanasSeleccionadas} Seleccionadas)",
+                          "EDICIÓN DE LOTE (${snigHandler.totalCaravanasSeleccionadas})",
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white,
@@ -402,17 +412,22 @@ class ConfigDrawer extends StatelessWidget {
 
   Widget _buildApplyButton(BuildContext context, ConfigDrawerHandler handler,
       SnigHandler snigHandler) {
+    int xTotalCaravanasSeleccionadas = snigHandler.totalCaravanasSeleccionadas;
     return Padding(
       padding: const EdgeInsets.all(20),
       child: ElevatedButton(
-        onPressed: () => _handleApplyButton(context, handler, snigHandler),
+        onPressed: xTotalCaravanasSeleccionadas > 0 ? // Si tiene caravanas seleccionadas
+          () => _handleApplyButton(context, handler, snigHandler) :
+          null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF121714),
+          backgroundColor: xTotalCaravanasSeleccionadas > 0 ?  // Si tiene caravanas seleccionadas
+          const Color(0xFF121714) : // Si tiene caravanas seleccionadas
+          const Color.fromARGB(255, 74, 72, 72), // Si no tiene caravanas seleccionadas
           minimumSize: const Size(double.infinity, 60),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
-        child: const Text("APLICAR CAMBIOS",
+        child: Text("APLICAR CAMBIOS (${xTotalCaravanasSeleccionadas})",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );

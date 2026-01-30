@@ -27,3 +27,9 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+// <!> Esto no se si va aqui
+// android {
+//     namespace "com.example.fonten_flutter"
+//     compileSdk 35 // O usa flutter.compileSdkVersion si está actualizado
+    
+// }

@@ -122,7 +122,7 @@ class _SnigScreenState extends State<SnigScreen> {
 
           // Botones eliminar Caravanas Seleccionadas (Solo aparecen si hay seleccionados)
           if (handler.totalCaravanasSeleccionadas > 0)
-            _buildActionButtons(handler),
+            _buildDeleteCaravanasButtons(handler),
         ],
       ),
 
@@ -169,7 +169,7 @@ class _SnigScreenState extends State<SnigScreen> {
     );
   }
 
-  Widget _buildActionButtons(SnigHandler handler) {
+  Widget _buildDeleteCaravanasButtons(SnigHandler handler) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(

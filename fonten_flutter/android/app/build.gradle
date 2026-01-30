@@ -7,8 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fonten_flutter"
-    compileSdk = flutter.compileSdkVersion
+    namespace "com.example.fonten_flutter" // Namespace
+    compileSdk 35 // O 36 si querés estar al día con tu Samsung
+
+    // namespace = "com.example.fonten_flutter"
+    // compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -25,8 +28,10 @@ android {
         applicationId = "com.example.fonten_flutter"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // minSdk = flutter.minSdkVersion
+        minSdk = 21
+        // targetSdk = flutter.targetSdkVersion
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
