@@ -120,18 +120,21 @@ class _SnigScreenState extends State<SnigScreen> {
                     ),
             ),
 
-          // Botones eliminar Caravanas Seleccionadas (Solo aparecen si hay seleccionados)
-          if (handler.totalCaravanasSeleccionadas > 0)
-            _buildDeleteCaravanasButtons(handler),
+          // // Botones eliminar Caravanas Seleccionadas (Solo aparecen si hay seleccionados)
+          // if (handler.totalCaravanasSeleccionadas > 0)
+          //   _buildDeleteCaravanasButtons(handler),
         ],
       ),
 
-      // 4. BOTÓN FLOTANTE - AGREGAR NUEVA CARAVANA <!> Tengo que arreglarlo y implementar el mentodo cuando termine la interfas
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () {},
-      ),
+      // // 4. BOTÓN FLOTANTE - AGREGAR NUEVA CARAVANA <!> Tengo que arreglarlo y implementar el mentodo cuando termine la interfas
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: AppTheme.primary,
+      //   child: const Icon(Icons.add, color: Colors.white),
+      //   onPressed: () {},
+      // ),
+
+      // Barra de acciones
+      bottomNavigationBar: _buildTripleActionBar(handler),
     );
   }
 
@@ -169,30 +172,6 @@ class _SnigScreenState extends State<SnigScreen> {
     );
   }
 
-  Widget _buildDeleteCaravanasButtons(SnigHandler handler) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-      child: Row(
-        children: [
-          Expanded(
-            //<!> Boton elminiar lo seleccionado arreglar
-            child: ElevatedButton.icon(
-              onPressed: () => handler.eliminarSeleccionadas(),
-              icon: const Icon(Icons.delete, color: Colors.white),
-              label: Text("ELIMINAR (${handler.totalCaravanasSeleccionadas})",
-                  style: const TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(vertical: 12)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildSelectAllHeader(SnigHandler handler) {
     // Ajustamos el padding para alinear con el contenido de las tarjetas
@@ -200,7 +179,11 @@ class _SnigScreenState extends State<SnigScreen> {
     // Pero visualmente 32-36 suele quedar bien.
     return Padding(
       padding:
-          const EdgeInsets.only(left: 34.0, right: 32.0, top: 8.0, bottom: 4.0),
+          const EdgeInsets.only(
+            left: 34.0, 
+            right: 32.0, 
+            top: 8.0, 
+            bottom: 4.0),
       child: Row(
         children: [
           // Checkbox alineado con el de los items
@@ -241,4 +224,143 @@ class _SnigScreenState extends State<SnigScreen> {
       ),
     );
   }
+
+  /// Construye la barra de acciones principal ubicada en la parte inferior de la pantalla.
+  ///
+  /// Esta barra centraliza las tres operaciones críticas del flujo de trabajo en el tubo:
+  /// 1. **Eliminar**: Acción destructiva para remover caravanas seleccionadas (contextual).
+  /// 2. **Simular**: Acción de comparación contra archivos externos (PDF/TXT).
+  /// 3. **Agregar**: Acción manual para registrar nuevos animales.
+  ///
+  /// El diseño es colapsable mediante [handler.showBottomActions], permitiendo al 
+  /// operario maximizar el área de visualización de la lista cuando sea necesario.  
+  Widget _buildTripleActionBar(SnigHandler handler) {
+    // 1. Obtenemos cuánto mide la barra del sistema (en Web es 0, en móvil varía)
+    final double bottomPadding = MediaQuery.of(context).padding.bottom;  
+
+    // 2. Calculamos las alturas sumando ese padding
+    final double expandedHeight = 93 + bottomPadding; 
+    final double collapsedHeight = 40 + bottomPadding;    
+
+    return AnimatedContainer( 
+      duration: const Duration(milliseconds: 300), // Tiempo de la transición (suave para el usuario)
+      height: handler.showBottomActions ? 
+        expandedHeight : // Si es true, la algura menu desplegado
+        collapsedHeight, // Si es false, menu colapsado
+      curve: Curves.easeInOut, // Curva de animación <!> Esto no lo entiendo
+      decoration: BoxDecoration( 
+        color: Colors.white, // Fondo blanco para contraste con la lista
+        boxShadow: [ // Sombra sutil para dar efecto de elevación 
+          BoxShadow( 
+            color: Colors.black12, // Sombra sutil para dar efecto de elevación 
+            blurRadius: 10, // Desenfoque de la sombra
+            offset: Offset(0, -2) // Desplazamiento de la sombra
+          )
+        ],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)), // Bordes redondeados
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+            // 1. TIRADOR / BOTÓN PARA COLAPSAR
+          GestureDetector( 
+            onTap: () => handler.toggleBottomActions(), // Cambia el estado de visibilidad
+            child: Container(
+              width: double.infinity, // Ancho completo
+              color: Colors.transparent, // Para que sea fácil de tocar
+              child: Icon(
+                handler.showBottomActions ? 
+                  Icons.keyboard_arrow_down : // Flecha hacia abajo si está expandido
+                  Icons.keyboard_arrow_up, // Flecha hacia arriba si está colapsado
+                color: Colors.grey, // Color gris para el icono
+              ),
+            ),
+          ),
+
+        // 2. LOS 3 BOTONES (Solo visibles si está expandido)
+        if (handler.showBottomActions)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              16, // Padding izquierdo
+              0, // Padding superior
+              16, // Padding derecho
+              5 // Padding inferior
+              ), 
+            child: Row(
+              children: [
+                // IZQUIERDA: ELIMINAR
+                _buildBottomButton(
+                  label: "BORRAR (${handler.totalCaravanasSeleccionadas})",
+                  icon: Icons.delete_outline,
+                  color: handler.totalCaravanasSeleccionadas > 0 ? Colors.red : Colors.grey[300]!,
+                  onTap: handler.totalCaravanasSeleccionadas > 0 
+                      ? () => handler.eliminarSeleccionadas() 
+                      : null,
+                ),
+                const SizedBox(width: 8),
+
+                // MEDIO: SIMULAR
+                _buildBottomButton(
+                  label: "BORRAR SIMULAR",
+                  icon: Icons.picture_as_pdf,
+                  color: AppTheme.secondary,
+                  onTap: null
+                ),
+                const SizedBox(width: 8),
+
+                // DERECHA: AGREGAR
+                _buildBottomButton(
+                  label: "AGREGAR",
+                  icon: Icons.add_circle_outline,
+                  color: Colors.green[700]!,
+                  onTap: null
+                ),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+
+// Widget auxiliar para los botones de la barra
+Widget _buildBottomButton({
+  required String label,
+  required IconData icon,
+  required Color color,
+  required VoidCallback? onTap,
+}) {
+  return Expanded(
+    child: InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white, 
+                fontSize: 12, 
+                fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+
 }

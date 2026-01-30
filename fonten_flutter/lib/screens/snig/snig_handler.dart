@@ -33,6 +33,19 @@ class SnigHandler extends ChangeNotifier {
         .getListCaravanas); // Inicializar la lista filtrada con los datos del servicio
   }
 
+  /// Se encarga de indicar si se muestran las acciones de la barra inferior.
+  bool _showBottomActions = true;
+
+  /// Getters de showBottomActions
+  bool get showBottomActions => _showBottomActions;
+
+  /// Setters de showBottomActions
+  void toggleBottomActions() {
+    _showBottomActions = !_showBottomActions;
+    notifyListeners();
+  }
+
+
   /// Getters Caravanas Filtradas
   List<CaravanaModel> get caravanasFiltradas => _filteredCaravanas;
 
@@ -175,4 +188,7 @@ class SnigHandler extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+
+
 }

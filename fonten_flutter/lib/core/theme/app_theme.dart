@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // Colores del diseño original (SNIG Connect)
   static const Color primary = Color(0xFF1e6c41);
+  static const Color secondary = Color.fromARGB(255, 108, 103, 30);
   static const Color primaryDark = Color(0xFF165a35);
   static const Color background = Color(0xFFf2f4f3);
   static const Color surface = Color(0xFFFFFFFF);
