@@ -119,28 +119,19 @@ class _SnigScreenState extends State<SnigScreen> {
                       },
                     ),
             ),
-
-          // // Botones eliminar Caravanas Seleccionadas (Solo aparecen si hay seleccionados)
-          // if (handler.totalCaravanasSeleccionadas > 0)
-          //   _buildDeleteCaravanasButtons(handler),
         ],
       ),
-
-      // // 4. BOTÓN FLOTANTE - AGREGAR NUEVA CARAVANA <!> Tengo que arreglarlo y implementar el mentodo cuando termine la interfas
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: AppTheme.primary,
-      //   child: const Icon(Icons.add, color: Colors.white),
-      //   onPressed: () {},
-      // ),
 
       // Barra de acciones
       bottomNavigationBar: _buildTripleActionBar(handler),
     );
   }
 
-  Widget _buildSummaryBar(SnigHandler handler) {
+
+
+Widget _buildSummaryBar(SnigHandler handler) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
@@ -148,29 +139,106 @@ class _SnigScreenState extends State<SnigScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStat("Todos", "${handler.totalCaravanas}"),
-          _buildStat("Estan en Simulador", "${handler.totalCaravanasOk}",
-              color: Colors.green),
           _buildStat(
-              "Faltan en Simulador", "${handler.totalCaravanasFaltantes}",
-              color: Colors.red),
+            label: "Todos", 
+            value: "${handler.totalCaravanas}",
+            type: CaravanaFilterType.todos,
+            handler: handler,
+          ),
+          _buildStat(
+            label: "En Simulador", 
+            value: "${handler.totalCaravanasOk}",
+            color: Colors.green,
+            type: CaravanaFilterType.ok,
+            handler: handler,
+          ),
+          _buildStat(
+            label: "Faltantes", 
+            value: "${handler.totalCaravanasFaltantes}",
+            color: Colors.red,
+            type: CaravanaFilterType.faltantes,
+            handler: handler,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStat(String label, String value, {Color color = Colors.black}) {
-    return Column(
-      children: [
-        Text(value,
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-        Text(label,
-            style: const TextStyle(
-                fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-      ],
+  Widget _buildStat({
+    required String label, 
+    required String value, 
+    required CaravanaFilterType type,
+    required SnigHandler handler,
+    Color color = Colors.black
+  }) {
+    final bool isSelected = handler.activeFilter == type;
+
+    return InkWell(
+      onTap: () => handler.setFilter(type),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          // Resaltamos el filtro activo con un fondo suave
+          color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: isSelected ? Border.all(color: color.withOpacity(0.5)) : null,
+        ),
+        child: Column(
+          children: [
+            Text(value, style: TextStyle(
+              fontSize: 20, 
+              fontWeight: FontWeight.bold, 
+              color: color
+            )),
+            Text(label, style: TextStyle(
+              fontSize: 10, 
+              color: isSelected ? color : Colors.grey, 
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal
+            )),
+          ],
+        ),
+      ),
     );
   }
+
+
+
+  
+
+  // Widget _buildSummaryBar(SnigHandler handler) {
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: const BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //       children: [
+  //         _buildStat("Todos", "${handler.totalCaravanas}"),
+  //         _buildStat("Estan en Simulador", "${handler.totalCaravanasOk}",
+  //             color: Colors.green),
+  //         _buildStat(
+  //             "Faltan en Simulador", "${handler.totalCaravanasFaltantes}",
+  //             color: Colors.red),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildStat(String label, String value, {Color color = Colors.black}) {
+  //   return Column(
+  //     children: [
+  //       Text(value,
+  //           style: TextStyle(
+  //               fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+  //       Text(label,
+  //           style: const TextStyle(
+  //               fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+  //     ],
+  //   );
+  // }
 
 
   Widget _buildSelectAllHeader(SnigHandler handler) {
