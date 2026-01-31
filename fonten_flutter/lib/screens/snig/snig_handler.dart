@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../models/caravana_models.dart';
 import '../../services/api_service.dart';
 
+enum CaravanaFilterType { todos, ok, faltantes }
+
 /// Clase encargada de gestionar la lógica de negocio y el estado para el Formulario
 /// prinsipal de la aplicacion snig.
 ///
@@ -25,6 +27,12 @@ class SnigHandler extends ChangeNotifier {
   /// mensaje de erro
   String? _errorMessage;
 
+  /// Filtro activo seleccionado en la UI
+  CaravanaFilterType _activeFilter = CaravanaFilterType.todos;
+
+  /// Consulta de búsqueda actual
+  String _currentSearchQuery = '';
+
   /// Constructor de la clase SnigHandler.
   ///
   /// Inicializa la lista filtrada con los datos del servicio.
@@ -39,12 +47,14 @@ class SnigHandler extends ChangeNotifier {
   /// Getters de showBottomActions
   bool get showBottomActions => _showBottomActions;
 
+  /// Getter del filtro activo
+  CaravanaFilterType get activeFilter => _activeFilter;
+
   /// Setters de showBottomActions
   void toggleBottomActions() {
     _showBottomActions = !_showBottomActions;
     notifyListeners();
   }
-
 
   /// Getters Caravanas Filtradas
   List<CaravanaModel> get caravanasFiltradas => _filteredCaravanas;
@@ -85,16 +95,55 @@ class SnigHandler extends ChangeNotifier {
   /// Este método se encarga de:
   /// 1. Actualizar la lista filtrada con los datos del servicio.
   /// 2. Notificar a la interfaz que los datos han cambiado.
+  /// Refrescar la lista de caravanas desde el servicio.
+  ///
+  /// Este método se encarga de:
+  /// 1. Actualizar la lista filtrada con los datos del servicio.
+  /// 2. Notificar a la interfaz que los datos han cambiado.
   void refrescarDesdeService() {
-    _filteredCaravanas = List.from(_apiService.getListCaravanas);
-    notifyListeners(); // Esto hace que la pantalla principal se entere del cambio
+    _applyFilters();
+  }
+
+  /// Aplica los filtros actuales (búsqueda y tipo) a la lista original
+  void _applyFilters() {
+    List<CaravanaModel> temp = _apiService.getListCaravanas;
+
+    // 1. Filtrar por búsqueda de texto
+    if (_currentSearchQuery.isNotEmpty) {
+      temp =
+          temp.where((c) => c.caravana.contains(_currentSearchQuery)).toList();
+    }
+
+    // 2. Filtrar por tipo (Categoría)
+    switch (_activeFilter) {
+      case CaravanaFilterType.ok:
+        temp = temp.where((c) => c.esOk).toList();
+        break;
+      case CaravanaFilterType.faltantes:
+        temp = temp.where((c) => !c.esOk).toList();
+        break;
+      case CaravanaFilterType.todos:
+        // No hacer nada
+        break;
+    }
+
+    _filteredCaravanas = temp;
+    notifyListeners();
+  }
+
+  /// Establece el filtro de tipo y actualiza la lista
+  void setFilter(CaravanaFilterType type) {
+    if (_activeFilter != type) {
+      _activeFilter = type;
+      _applyFilters();
+    }
   }
 
   void agregarCaravana(CaravanaModel nueva) {
     try {
       _apiService.addCaravana(nueva);
-      _filteredCaravanas = List.from(_apiService.getListCaravanas);
-      notifyListeners();
+      _apiService.addCaravana(nueva);
+      _applyFilters();
     } catch (e) {
       print(e); //<!> Esto deberia tener un menu emergente
     }
@@ -106,8 +155,8 @@ class SnigHandler extends ChangeNotifier {
     final realIndex = _apiService.getListCaravanas.indexOf(caravanaAEliminar);
     if (realIndex != -1) {
       _apiService.removeCaravana(realIndex);
-      _filteredCaravanas.removeAt(index);
-      notifyListeners();
+      _apiService.removeCaravana(realIndex);
+      _applyFilters();
     }
   }
 
@@ -118,16 +167,16 @@ class SnigHandler extends ChangeNotifier {
     final realIndex = _apiService.getListCaravanas.indexOf(caravanaAEliminar);
     if (realIndex != -1) {
       _apiService.removeCaravana(realIndex);
-      _filteredCaravanas.removeAt(index);
-      notifyListeners();
+      _apiService.removeCaravana(realIndex);
+      _applyFilters();
     }
   }
 
   void eliminarSeleccionadas() {
     //<!> Aca deberia llamar a el metdo eliminar caravana ademas de app service
     _apiService.getListCaravanas.removeWhere((c) => c.seleccionada);
-    _filteredCaravanas = List.from(_apiService.getListCaravanas);
-    notifyListeners();
+    _apiService.getListCaravanas.removeWhere((c) => c.seleccionada);
+    _applyFilters();
   }
 
   /// Cambia el estado de seleccionada de la caravana en la lista filtrada.
@@ -156,22 +205,15 @@ class SnigHandler extends ChangeNotifier {
     notifyListeners();
 
     // Actualizamos la lista filtrada desde la fuente de verdad (ApiService)
-    _filteredCaravanas = List.from(_apiService.getListCaravanas);
+    _applyFilters();
 
     _isLoading = false;
     notifyListeners();
   }
 
   void filterCaravanas(String query) {
-    if (query.isEmpty) {
-      _filteredCaravanas = List.from(_apiService.getListCaravanas);
-    } else {
-      _filteredCaravanas = _apiService.getListCaravanas.where((c) {
-        // En CaravanaModel usamos .caravana para el número de 15 dígitos
-        return c.caravana.contains(query);
-      }).toList();
-    }
-    notifyListeners();
+    _currentSearchQuery = query;
+    _applyFilters();
   }
 
   /// Verifica si todas las caravanas mostradas están seleccionadas
@@ -191,11 +233,8 @@ class SnigHandler extends ChangeNotifier {
 
   bool get isLoadingSimulador => _apiService.isLoadingSimulador;
 
-  void descargarSimulador()  {
+  void descargarSimulador() {
     _apiService.descargarSimulador(); // O el método que uses
-    notifyListeners(); 
+    notifyListeners();
   }
-
-
-
 }
