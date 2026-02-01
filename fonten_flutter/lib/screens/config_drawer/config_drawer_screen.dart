@@ -6,7 +6,23 @@ import 'package:provider/provider.dart';
 import '../snig/snig_handler.dart';
 import '../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
+// <DM!>  Case de Para menu lateral 
+// Botones carga Txt, Csv del lector TruTest, Pdf del simulador.
+// Todas las modificaciones se hacen con la seleccion de sim_caravanas
 
+// <> Boton Importar CSV
+// <> Boton Cargar PDF
+// <> Boton Importar Txt
+// <> Boton Exportar Txt
+// 
+// <> Caja Edicion masiva
+// <> Editar Masiva por gia de lectura
+// <> Editar Masiva por fecha de lectura
+// <> por hora de lectura per en este caso su seleccionas una hora 
+//tiene que ser correlativo es desir su cmabias uan hora cambia 
+//conservando la correlacion entre caravaas par simular lo leido por
+// el lector 
+// <> Editar Masiva por gia de lectura
 class ConfigDrawer extends StatelessWidget {
   const ConfigDrawer({super.key});
 
@@ -19,6 +35,9 @@ class ConfigDrawer extends StatelessWidget {
     },
   );
 
+
+  // <DM!>  Despliega el arblo de witget la estructura de la interfas la parte vidual 
+  // de la pantalla de configuracion del menu lateral 
   @override
   Widget build(BuildContext context) {
     // final handler = Provider.of<SnigHandler>(context); <!> Estes lo anteriro borrar cuando aga andar estra nueva restructuracion

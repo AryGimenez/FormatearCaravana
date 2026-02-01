@@ -5,7 +5,18 @@ import 'snig_handler.dart';
 import 'caravana_item.dart';
 import '../config_drawer/config_drawer_screen.dart';
 import '../../core/theme/app_theme.dart';
-
+import '../carga_masiva/carga_masiva_screen.dart';
+//  <DM!> parte vidual 
+  // de la pantalla de configuracion del Menu principal de la aplicacion 
+  // Funcionalidades 
+  // <> Barra de busqueda 
+  // <> Barra de resumen de totales 
+  // <> Barra de acciones 
+  // <> Lista de Caravanas Caravanas_Item
+  // <> Barra de navegacion inferior  
+  // <>  Agregar caravana va al menu Cargar_Masiva Caravanas 
+  // <>  Eliminar caravasn seleccionadas
+  // <>  Boton Remover el simulador cargado
 class SnigScreen extends StatefulWidget {
   const SnigScreen({super.key});
 
@@ -35,13 +46,14 @@ class _SnigScreenState extends State<SnigScreen> {
     super.dispose();
   }
 
+  // <DM!>  Despliega el arblo de witget la estructura de la interfas la 
   @override
   Widget build(BuildContext context) {
     final handler = Provider.of<SnigHandler>(
         context); // Obtiene el handler usando Provider lo que permite acceder a los datos del handler desde cualquier lugar de la app.
 
     // Escucha errores y muestra Snackbar un menu inferior notificando al usuario
-    // que a ocurrido un error.
+    // que a ocurrido un error. <!> Esto no tengo vien claro para que es
     if (handler.errorMessage != null) { // Si hay un error
       WidgetsBinding.instance.addPostFrameCallback((_) { // Asegura que el snackbar se muestre despues de que el arbol de widgets se haya construido
         ScaffoldMessenger.of(context).showSnackBar(// Muestra el snackbar
@@ -56,11 +68,12 @@ class _SnigScreenState extends State<SnigScreen> {
       });
     }
 
-    return Scaffold( // Muestra la pantalla
-      // 1. EL MENÚ LATERAL
+    // Muestra la pantalla
+    return Scaffold( 
+      // 1. EL MENÚ LATERAL --------------------------------------------------
       drawer: const ConfigDrawer(),
 
-      // 2. LA BARRA SUPERIOR
+      // 2. LA BARRA SUPERIOR ------------------------------------------------
       appBar: AppBar(
         title: const Text("SNIG Connect",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -69,39 +82,39 @@ class _SnigScreenState extends State<SnigScreen> {
         ],
       ),
 
-      // 3. EL CUERPO (LISTA)
-      body: Column(
-        children: [
+      // 3. EL CUERPO (LISTA) ------------------------------------------------
+      body: Column( 
+        children: [ 
           // Barra de búsqueda
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearch,
-              decoration: InputDecoration(
-                hintText: 'Buscar por EID o visual...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
+            padding: const EdgeInsets.all(16.0), // Padding de la barra de búsqueda
+            child: TextField( // TextField de la barra de búsqueda
+              controller: _searchController,// Controlador de la barra de búsqueda
+              onChanged: _onSearch,// Funcion que se ejecuta cuando se cambia el texto de la barra de búsqueda
+              decoration: InputDecoration( // Decoracion de la barra de búsqueda
+                hintText: 'Buscar por EID o visual...',// Texto de la barra de búsqueda
+                prefixIcon: const Icon(Icons.search),// Icono de la barra de búsqueda
+                border: OutlineInputBorder( // Decoracion de la barra de búsqueda
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                filled: true,
-                fillColor: Colors.grey[100],
+                filled: true,// Relleno de la barra de búsqueda
+                fillColor: Colors.grey[100],// Color de la barra de búsqueda
               ),
             ),
           ),
 
-          // Resumen rápido de totales
-          _buildSummaryBar(handler),
+          // <DM!> Resumen rápido de totales Total Caravanas / Total Caravanas / Caravanas En Simulador / Total Fuera Simulador
+          _buildSummaryBar(handler),// Muestra la pantalla
 
           if (handler.isLoading)
             const Expanded(child: Center(child: CircularProgressIndicator())),
 
           // Cabecera con "Seleccionar Todo"
-          if (!handler.isLoading && handler.caravanasFiltradas.isNotEmpty)
+          if (!handler.isLoading && handler.caravanasFiltradas.isNotEmpty) // <DM!> Si hay caravanas cargadas
             _buildSelectAllHeader(handler),
 
-          if (!handler.isLoading)
+          if (!handler.isLoading) // <DM!> Si no hay caravanas cargadas
             Expanded(
               child: handler.caravanasFiltradas.isEmpty
                   ? const Center(
@@ -111,10 +124,10 @@ class _SnigScreenState extends State<SnigScreen> {
                       itemCount: handler.caravanasFiltradas.length,
                       itemBuilder: (context, index) {
                         return CaravanaItem(
-                          caravana: handler.caravanasFiltradas[index],
-                          onToggle: () => handler.toggleSeleccion(index),
-                          onDelete: () => handler.eliminarCaravana(index),
-                          onModify: () => handler.modificarCaravana(index),
+                          caravana: handler.caravanasFiltradas[index], // Caravana a mostrar
+                          onToggle: () => handler.toggleSeleccion(index), // Funcion que se ejecuta cuando se cambia el estado de la caravana
+                          onDelete: () => handler.eliminarCaravana(index), // Funcion que se ejecuta cuando se elimina la caravana
+                          onModify: () => handler.modificarCaravana(index), // Funcion que se ejecuta cuando se modifica la caravana
                         );
                       },
                     ),
@@ -123,13 +136,13 @@ class _SnigScreenState extends State<SnigScreen> {
       ),
 
       // Barra de acciones
-      bottomNavigationBar: _buildTripleActionBar(handler),
+      bottomNavigationBar: _buildTripleActionBar(handler), // Barra de acciones
     );
   }
 
-
-
-Widget _buildSummaryBar(SnigHandler handler) {
+  // <DM!> Por lo que me acuerdo estao es para mostrar un resumen de las caravanas filtradas
+  // 
+  Widget _buildSummaryBar(SnigHandler handler) {  
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: const BoxDecoration(
@@ -139,42 +152,44 @@ Widget _buildSummaryBar(SnigHandler handler) {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStat(
-            label: "Todos", 
-            value: "${handler.totalCaravanas}",
-            type: CaravanaFilterType.todos,
-            handler: handler,
+          _buildStat( // Boton Muestra todo los totales de caravanas
+            label: "Todos", // Texto del boton
+            value: "${handler.totalCaravanas}", // Valor del boton
+            type: CaravanaFilterType.todos, // Tipo de filtro
+            handler: handler, // Manejador de eventos
           ),
-          _buildStat(
-            label: "En Simulador", 
-            value: "${handler.totalCaravanasOk}",
-            color: Colors.green,
-            type: CaravanaFilterType.ok,
-            handler: handler,
+          _buildStat( // Boton filtra las caravanas que estan en simulador
+            label: "En Simulador", // Texto del boton
+            value: "${handler.totalCaravanasOk}", // Valor del boton
+            color: Colors.green, // Color del boton
+            type: CaravanaFilterType.ok, // Tipo de filtro
+            handler: handler, // Manejador de eventos
           ),
-          _buildStat(
-            label: "Faltantes", 
-            value: "${handler.totalCaravanasFaltantes}",
-            color: Colors.red,
-            type: CaravanaFilterType.faltantes,
-            handler: handler,
+          _buildStat( // Boton filtra las caravanas que no estan en simulador
+            label: "Faltantes", // Texto del boton
+            value: "${handler.totalCaravanasFaltantes}", // Valor del boton
+            color: Colors.red, // Color del boton
+            type: CaravanaFilterType.faltantes, // Tipo de filtro
+            handler: handler, // Manejador de eventos
           ),
         ],
       ),
     );
   }
 
+  // <!> no me acuerod documetalo 
   Widget _buildStat({
-    required String label, 
-    required String value, 
-    required CaravanaFilterType type,
-    required SnigHandler handler,
-    Color color = Colors.black
+    required String label, // Texto del boton
+    required String value, // Valor del boton
+    required CaravanaFilterType type, // Tipo de filtro
+    required SnigHandler handler, // Manejador de eventos
+    Color color = Colors.black // Color del texto
   }) {
     final bool isSelected = handler.activeFilter == type;
 
+    
     return InkWell(
-      onTap: () => handler.setFilter(type),
+      onTap: () => handler.setFilter(type), // Funcion que se ejecuta cuando se cambia el estado de la caravana
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -188,8 +203,8 @@ Widget _buildSummaryBar(SnigHandler handler) {
           children: [
             Text(value, style: TextStyle(
               fontSize: 20, 
-              fontWeight: FontWeight.bold, 
-              color: color
+              fontWeight: FontWeight.bold, // Peso del texto
+              color: color // Color del texto
             )),
             Text(label, style: TextStyle(
               fontSize: 10, 
@@ -201,10 +216,6 @@ Widget _buildSummaryBar(SnigHandler handler) {
       ),
     );
   }
-
-
-
-  
 
   // Widget _buildSummaryBar(SnigHandler handler) {
   //   return Container(
@@ -240,7 +251,7 @@ Widget _buildSummaryBar(SnigHandler handler) {
   //   );
   // }
 
-
+  // <!> no me acuerod documetalo 
   Widget _buildSelectAllHeader(SnigHandler handler) {
     // Ajustamos el padding para alinear con el contenido de las tarjetas
     // ListView padding (16) + Card padding (16) + Border (5) aprox = ~37
@@ -356,7 +367,7 @@ Widget _buildSummaryBar(SnigHandler handler) {
               ), 
             child: Row(
               children: [
-                // IZQUIERDA: ELIMINAR
+                // IZQUIERDA: ELIMINAR  -----
                 _buildBottomButton(
                   label: "BORRAR (${handler.totalCaravanasSeleccionadas})",
                   icon: Icons.delete_outline,
@@ -369,7 +380,7 @@ Widget _buildSummaryBar(SnigHandler handler) {
                 ),
                 const SizedBox(width: 8),
 
-                // MEDIO: SIMULAR
+                // MEDIO: Eliminar SIMULAR  ----- 
                 _buildBottomButton(
                   label: "BORRAR SIMULAR",
                   icon: Icons.picture_as_pdf,
@@ -382,12 +393,20 @@ Widget _buildSummaryBar(SnigHandler handler) {
                 ),
                 const SizedBox(width: 8),
 
-                // DERECHA: AGREGAR
+                // DERECHA: AGREGAR  ----- 
                 _buildBottomButton(
                   label: "AGREGAR",
                   icon: Icons.add_circle_outline,
                   color: Colors.green[700]!,
-                  onTap: null
+                  onTap: () {
+                    // Navegamos a la pantalla de Carga Masiva
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CargaMasivaScreen(),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -397,17 +416,16 @@ Widget _buildSummaryBar(SnigHandler handler) {
   );
 }
 
-
-// Widget auxiliar para los botones de la barra
-Widget _buildBottomButton({
-  required String label,
-  required IconData icon,
-  required Color color,
-  required VoidCallback? onTap,
-}) {
-  return Expanded(
-    child: InkWell(
-      onTap: onTap,
+  // Widget auxiliar para los botones de la barra <!> Mejora el comentario
+  Widget _buildBottomButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback? onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
@@ -433,8 +451,5 @@ Widget _buildBottomButton({
     ),
   );
 }
-
-
-
 
 }
