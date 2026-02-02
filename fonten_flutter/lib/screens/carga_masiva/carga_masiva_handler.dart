@@ -27,7 +27,8 @@ class CargaMasivaHandler extends ChangeNotifier {
   // Getters
   bool get isWhatsappExpanded => _isWhatsappExpanded;
   bool get isCorrelativeEnabled => _isCorrelativeEnabled;
-
+  // <DM!> Creo que retrae y expande el menu que tiene un Text area
+  // EN caso de retraido se expande y visebersa 
   void toggleWhatsapp() {
     _isWhatsappExpanded = !_isWhatsappExpanded;
     notifyListeners();
@@ -37,12 +38,13 @@ class CargaMasivaHandler extends ChangeNotifier {
     _isCorrelativeEnabled = value;
     notifyListeners();
   }
-
+  // <DM!> Actualizar campo fecha para asignarle a CaravanaModel 
   void updateDate(DateTime newDate) {
     selectedDate = newDate;
     notifyListeners();
   }
 
+  // <DM!> Actualizar campo hora para asignarle a CaravanaModel 
   void updateTime(TimeOfDay newTime) {
     selectedTime = newTime;
     notifyListeners();

@@ -23,11 +23,11 @@ class CargaMasivaScreen extends StatelessWidget {
 
 class _CargaMasivaContent extends StatelessWidget {
   const _CargaMasivaContent();
-
+  // <DM!> Dibuja el la interfas El arbol de wintgent 
   @override
   Widget build(BuildContext context) {
-    final handler = Provider.of<CargaMasivaHandler>(context);
-    final mainHandler = Provider.of<SnigHandler>(context, listen: false);
+    final handler = Provider.of<CargaMasivaHandler>(context); // <DM!> Logica de la pantalla Carga Masiva 
+    final mainHandler = Provider.of<SnigHandler>(context, listen: false); // <DM!> Logica de la pantalla principal se uda para notificar los cambios 
     // <!> Creo que se usa para construir la aplicaicon pero no lo tengo claro  
     return Scaffold( 
       backgroundColor: Colors.grey[100], // Fondo claro tipo 'background-light'
@@ -50,12 +50,15 @@ class _CargaMasivaContent extends StatelessWidget {
               children: [
                 // <DM!> Menu Desplegable para cargar texto 
                 // Tipo Ejemplo: 051115346 - 051115344- 057068293- 046458193
-                _buildWhatsappSection(handler),
+                _buildWhatsappSection(handler), 
 
-                // <DM!> Formulario Manual (Se oculta si WhatsApp está expandido)
-                if (!handler.isWhatsappExpanded) ...[
+                // <DM!> Menu para edicion caravanas manual 
+                // <> Texto Guia 
+                // <> Texto Fecah lectura
+                // <> Texto Hora lectura
+                if (!handler.isWhatsappExpanded) ...[ // <!> Por lo que entiendo colapsa el menu si el menu de carga texto que despliegue 
                   const SizedBox(height: 16),
-                  _buildManualForm(context, handler),
+                  _buildManualForm(context, handler), // <DM!>Funcion que manda menu ediocion manual 
                 ],
               ],
             ),
@@ -199,10 +202,18 @@ class _CargaMasivaContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Campo Caravana Grande
-        const Text("CARAVANA", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-        const SizedBox(height: 4),
-        TextField(
+        // Campo Caravana ---
+        const Text( // <DM!> Texto ensima del campo editable 
+          "CARAVANA", 
+          style: TextStyle(
+            fontSize: 10, 
+            fontWeight: FontWeight.
+            bold, color: Colors.grey)
+            ),
+        
+        const SizedBox(height: 4),  
+
+        TextField(//<DM!> Campo editable Caravana
           controller: handler.eidController,
           keyboardType: TextInputType.number,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.5),

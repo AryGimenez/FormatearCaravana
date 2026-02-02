@@ -7,13 +7,20 @@ import 'package:fonten_flutter/services/base_service.dart';
 import '../models/caravana_models.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+// <DM!> Esto es para la parte de importacion masiva lo que hago es 
+// ugilisarlo para los tipos que puee intresar 
+// <> 1: Agrega duplicados y no duplicados
+// <> 2: Solo agrega los que no existían
+// <> 3: Si detecta algún duplicado, no agrega nada
 enum DuplicadosStrategy {
   agregarTodos, // Opción 1: Agrega duplicados y no duplicados
   soloNuevos, // Opción 2: Solo agrega los que no existían
   cancelarSiHay // Opción 3: Si detecta algún duplicado, no agrega nada
 }
-
+// </DM!> Logica de importar CSV 
 mixin CsvService on BaseService {
+
+
   /// Importa una lista de caravanas desde un archivo [file] CSV.
   ///
   /// El parámetro [estrategia] define cómo manejar colisiones de EID:
@@ -33,8 +40,8 @@ mixin CsvService on BaseService {
     if (lines.length < 2)
       throw ImportException("Archivo vacío o sin cabecera.");
 
-    List<CaravanaModel> xListNuevas = [];
-    List<CaravanaModel> xDuplicadosEncontrados = [];
+    List<CaravanaModel> xListNuevas = []; // Lista temporal de caravanas lo usoamos para guardar las caravanas temporalemte 
+    List<CaravanaModel> xDuplicadosEncontrados = []; // Lista de caravanas duplicadas con respoecto a la caravas del sistema 
 
     // Optimizamos la búsqueda: Creamos un Set con los IDs existentes
     // Buscar en un Set es instantáneo, no importa si tenés 10 o 10.000 vacas.
@@ -47,17 +54,19 @@ mixin CsvService on BaseService {
 
       // Formato que se espara del csv
       //858000051105095,,2024-07-02,11:23:09,Pint
-      final xCaravana = data[0].trim();
-      final xFecha = data[2].trim();
-      final xHora = data[3].trim();
-      final xGia = data[4].trim();
+      final xCaravana = data[0].trim(); // Caravana
+      final xFecha = data[2].trim(); // Fecha
+      final xHora = data[3].trim(); // Hora
+      final xGia = data[4].trim(); // GIA
 
+      // <!> Esto no se bien lo que hace 
       final nuevoModelo = CaravanaModel(
         caravana: xCaravana,
         gia: xGia,
         hf_lectura: DateTime.parse("$xFecha $xHora"),
       );
 
+      // <!> Esto no se bien lo que hace 
       if (eidsExistentes.contains(xCaravana)) {
         xDuplicadosEncontrados.add(nuevoModelo);
       } else {
@@ -176,36 +185,6 @@ mixin CsvService on BaseService {
     }
     return rows;
   }
-
-
-
-
-
-
-
-
-
-  // <!> Creo que no va
-  // // Método de apoyo por si el CSV viene sin saltos de línea claros
-  // List<List<dynamic>> _reprocesarFilaUnica(List<dynamic> filaGigante) {
-  //   // <!> Este creo que no va
-  //   List<List<dynamic>> nuevasFilas = [];
-  //   int columnasPorFila = 5; // EID, VID, Date, Time, Custom
-
-  //   for (var i = 0; i < filaGigante.length; i += columnasPorFila) {
-  //     var fin = (i + columnasPorFila < filaGigante.length)
-  //         ? i + columnasPorFila
-  //         : filaGigante.length;
-  //     nuevasFilas.add(filaGigante.sublist(i, fin));
-  //   }
-  //   return nuevasFilas;
-  // }
-
-
-
-
-
-
 
   /// Transforma los datos crudos del CSV (listas de listas) en una lista de objetos [CaravanaModel].
   ///

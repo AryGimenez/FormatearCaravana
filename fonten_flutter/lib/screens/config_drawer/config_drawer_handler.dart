@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fonten_flutter/services/api_service.dart';
 import 'package:fonten_flutter/models/caravana_models.dart';
-
+// <DM!> Logica del menu lateral 
 class ConfigDrawerHandler extends ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService(); // Instanica de logica global del sistema todos los servicios van aca 
 
   /// Se encarga de indicar si se ha producido un error. Lo utiliso para mostrar
   /// mensaje de erro
