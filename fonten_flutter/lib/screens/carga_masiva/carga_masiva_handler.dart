@@ -12,13 +12,13 @@ class CargaMasivaHandler extends ChangeNotifier {
   bool _isCorrelativeEnabled = true; // <!>  Esto no se que es 
   
   // Datos del Formulario
-  final TextEditingController eidController = TextEditingController();
-  final TextEditingController giaController = TextEditingController();
-  final TextEditingController whatsappController = TextEditingController();
+  final TextEditingController caravanaController = TextEditingController(); // <DM!> Controller Campo Editar Caravanas
+  final TextEditingController giaController = TextEditingController(); // <DM!> Controller Campo Gia
+  final TextEditingController whatsappController = TextEditingController(); // <DM!> Controller Campo WhatsApp
   
   // Variables de tiempo
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
+  DateTime selectedDate = DateTime.now(); // <DM!> Guardo el valor de Fecha Lectura del formulario intresar
+  TimeOfDay selectedTime = TimeOfDay.now(); // <DM!> Guardo el valor de Hora de la Caravana sociada a la lectrua 
 
   // La Cola Temporal
   final List<CaravanaModel> _tempQueue = [];
@@ -27,6 +27,28 @@ class CargaMasivaHandler extends ChangeNotifier {
   // Getters
   bool get isWhatsappExpanded => _isWhatsappExpanded;
   bool get isCorrelativeEnabled => _isCorrelativeEnabled;
+  
+  // Variable para el error visual
+  String? _caravanaErrorText;
+  String? get caravanaErrorText => _caravanaErrorText;
+
+  /// Valida el texto mientras el usuario escribe
+  void validarInputCaravana(String valor) {
+    if (valor.isEmpty) {
+      _caravanaErrorText = null;
+    } else if (!RegExp(r'^[0-9]+$').hasMatch(valor)) {
+      // Si contiene letras o símbolos
+      _caravanaErrorText = "Debe ingresar solo valores numéricos";
+    } else if (valor.length > 15) {
+      // Si se pasó de largo
+      _caravanaErrorText = "Máximo 15 dígitos";
+    } else {
+      // Si es corto (menos de 15) NO damos error, porque vamos a autocompletar
+      _caravanaErrorText = null;
+    }
+    notifyListeners();
+  }
+
   // <DM!> Creo que retrae y expande el menu que tiene un Text area
   // EN caso de retraido se expande y visebersa 
   void toggleWhatsapp() {
@@ -38,6 +60,7 @@ class CargaMasivaHandler extends ChangeNotifier {
     _isCorrelativeEnabled = value;
     notifyListeners();
   }
+
   // <DM!> Actualizar campo fecha para asignarle a CaravanaModel 
   void updateDate(DateTime newDate) {
     selectedDate = newDate;
@@ -99,28 +122,61 @@ class CargaMasivaHandler extends ChangeNotifier {
 
   /// 2. Agregar Manualmente
   void agregarManual() {
-    if (eidController.text.isEmpty) return;
+    // Si hay error visual (letras), no dejamos agregar
+    if (_caravanaErrorText != null || caravanaController.text.isEmpty) return;
 
+    String xNumeroFinal = caravanaController.text;  
+
+    // LÓGICA DE AUTOCOMPLETADO
+    // Si escribió solo el visual (ej: "51622384") y son menos de 15 dígitos...
+    if (xNumeroFinal.length < 15) {
+      // 1. Calculamos cuántos ceros faltan para llegar a 15 contando el prefijo 858
+      // Estrategia Senior: Asumimos que si escribe poco, es el final de la caravana uruguaya
+      
+      // Opción A: Rellenar todo con ceros a la izquierda hasta 15
+      // numeroFinal = numeroFinal.padLeft(15, '0'); 
+      
+      // Opción B (Mejor para UY): Agregar 858 + ceros de relleno
+      // Quitamos el 858 si el usuario lo puso parcial (ej: "858123") para evitar "858858..."
+      if (!xNumeroFinal.startsWith("858")) {
+          // Rellenamos lo que falta para llegar a 12 dígitos (15 - 3 del prefijo)
+          String sufijo = xNumeroFinal.padLeft(12, '0');
+          xNumeroFinal = "858$sufijo";
+      } else {
+          // Si ya empezó con 858 pero le faltan números, rellenamos el final
+          xNumeroFinal = xNumeroFinal.padRight(15, '0'); 
+      }
+
+    }
+
+    // <DM!> Creo el camp de fecha de CaravanaModel
     DateTime fechaFull = DateTime(
-      selectedDate.year, selectedDate.month, selectedDate.day,
-      selectedTime.hour, selectedTime.minute
+      selectedDate.year, // Año
+      selectedDate.month, // Mes
+      selectedDate.day, // Día
+      // --------
+      selectedTime.hour, // Hora
+      selectedTime.minute // Minuto
     );
-
+    // <!> Agrega a la lista CaravanaModel del formulario Es una lista independiete de la lista del sistema
     _tempQueue.add(CaravanaModel(
-      caravana: eidController.text,
-      gia: giaController.text.isEmpty ? "S/D" : giaController.text,
-      hf_lectura: fechaFull,
-      seleccionada: false
+      caravana: xNumeroFinal, // Numero de caravana
+      gia: giaController.text.isEmpty ? "S/D" : giaController.text, // Gia
+      hf_lectura: fechaFull, // Fecha y hora
+      seleccionada: false // Seleccionada
     ));
 
-    // Si es correlativa, avanzamos el reloj del formulario para el siguiente
+    // Si es correlativa, avanzamos el reloj del formulario para el siguiente. 
     if (_isCorrelativeEnabled) {
        // Avanzamos 1 minuto la hora visual
+       // <!> Esto eta mal aca tengo que usar el metodo de App_Service
+       
+       // <!> Esto deberia ser aliairio no sliendo de un marco de minutos por la opertaiva del tuvo vos vas agregand 3 4 o 10 dependeido del tamanio del  y luego unos minutos y seguis leyendo talves podraims 
        final nuevoTiempo = fechaFull.add(const Duration(minutes: 1));
        selectedTime = TimeOfDay.fromDateTime(nuevoTiempo);
     }
 
-    eidController.clear(); // Limpiamos solo el numero para cargar el siguiente rapido
+    caravanaController.clear(); // Limpiamos solo el numero para cargar el siguiente rapido
     notifyListeners();
   }
 
