@@ -77,13 +77,15 @@ class CargaMasivaHandler extends ChangeNotifier {
 
   /// 1. Extraer desde el texto de WhatsApp
   void procesarTextoWhatsapp() {
-    final texto = whatsappController.text;
-    if (texto.isEmpty) return;
+    final texto = whatsappController.text; // Extrae el texto del campo de texto
+    if (texto.isEmpty) return; // Si el texto esta vacio no hace nada
 
     // Regex: Busca secuencias de 8 a 15 dígitos
     final regExp = RegExp(r'\d{8,15}');
-    final matches = regExp.allMatches(texto);
+    final matches = regExp.allMatches(texto); // <DM!> Busca secuencias de 8 a 15 dígitos
 
+  
+    // Optiene la fecha ingresada en el formulario
     DateTime fechaBase = DateTime(
       selectedDate.year, selectedDate.month, selectedDate.day,
       selectedTime.hour, selectedTime.minute
@@ -93,6 +95,7 @@ class CargaMasivaHandler extends ChangeNotifier {
     for (var match in matches) {
       String numero = match.group(0)!;
       // Autocompletar con 858 si es necesario (tu lógica de negocio)
+      
       if (numero.length < 15 && !numero.startsWith("858")) {
          // Aquí podrías llamar a tu validador o autocompletador
          // numero = "8580000$numero"; 

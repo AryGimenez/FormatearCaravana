@@ -23,6 +23,7 @@ class CargaMasivaScreen extends StatelessWidget {
 
 class _CargaMasivaContent extends StatelessWidget {
   const _CargaMasivaContent();
+  
   // <DM!> Dibuja el la interfas El arbol de wintgent 
   @override
   Widget build(BuildContext context) {
@@ -74,14 +75,20 @@ class _CargaMasivaContent extends StatelessWidget {
               children: [
                 const Text("COLA TEMPORAL", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2
+                    ),
                   decoration: BoxDecoration(
                     color: AppTheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4)
                   ),
                   child: Text(
                     "Total: ${handler.tempQueue.length}", 
-                    style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primary
+                      )
                   ),
                 )
               ],
@@ -107,13 +114,13 @@ class _CargaMasivaContent extends StatelessWidget {
           // ---------------------------------------------
           // 4. BOTÓN FINAL <DM!> Boton que carga todo la caravana que logre cargar de el texto la gui y la fecah la toma de los camp;os de carga manjal 
           // ---------------------------------------------
-          Container( // <DM!>  
+          Container( 
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: Colors.black12))
             ),
-            child: SizedBox(
+            child: SizedBox(          // <!> Por aca el logo dewsapareses y no se donde 
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
@@ -122,14 +129,67 @@ class _CargaMasivaContent extends StatelessWidget {
                   : () => handler.confirmarTodo(context, mainHandler),
                 icon: const Icon(Icons.cloud_upload), // Icono de la accion   
                 label: const Text("CONFIRMAR Y CARGAR TODO"), // Texto de la accion 
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary, // Color de fondo 
-                  foregroundColor: Colors.white, // Color de texto 
-                  textStyle: const TextStyle( // Estilo de la fuente 
-                    fontWeight: FontWeight.bold, // Peso de la fuente 
-                    fontSize: 16 // Tamaño de la fuente 
-                    )
+                
+
+              style: ButtonStyle(
+                // 1. Color de fondo
+                backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                  if (states.contains(WidgetState.disabled)) {
+                    return Colors.grey[300]!; 
+                  }
+                  return AppTheme.primary;
+                }),
+                
+                // 2. Color de Texto e ICONO <!> Creo que aca esta el problema de que el logo al cargar una cravana no se ve pero si el texto 
+                foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                  if (states.contains(WidgetState.disabled)) {
+                    return Colors.grey[500]!;
+                  }
+                  return Colors.white;
+                }),
+
+                // 3. Estilo de texto
+                textStyle: WidgetStateProperty.all(
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
                 ),
+              ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                
+                // <!> Esto creo que esta para sacar 
+                // style: ElevatedButton.styleFrom(
+                //   backgroundColor: AppTheme.primary, // Color de fondo 
+                //   foregroundColor: Colors.white, // Color de texto 
+                //   textStyle: const TextStyle( // Estilo de la fuente 
+                //     fontWeight: FontWeight.bold, // Peso de la fuente 
+                //     fontSize: 16 // Tamaño de la fuente 
+                //     )
+                // ),
+
+
+
+
+
+
+
+
+
               ),
             ),
           ),
@@ -237,7 +297,7 @@ class _CargaMasivaContent extends StatelessWidget {
             ),
           ),
           
-          // Contenido Expandible
+          // Area de texto para pegar desde whatsapp
           if (handler.isWhatsappExpanded)
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -248,7 +308,7 @@ class _CargaMasivaContent extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  TextField(
+                  TextField( // Cuadro de texto 
                     controller: handler.whatsappController,
                     maxLines: 4,
                     decoration: const InputDecoration(
@@ -259,7 +319,8 @@ class _CargaMasivaContent extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
+                  // Boton para cargar de le texto a las caravanas 
+                  SizedBox( //<!> Nose lo que es SizedBox porque no uso un boton normal
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: handler.procesarTextoWhatsapp,
@@ -467,8 +528,13 @@ class _CargaMasivaContent extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton.icon(
                   onPressed: handler.agregarManual,
-                  icon: const Icon(Icons.add_circle, color: Colors.white),
-                  label: const Text("AGREGAR", style: TextStyle(color: Colors.white)),
+                  icon: Icon(
+                    Icons.add_circle,
+                    color: Colors.white
+                    ),
+                  label: Text("AGREGAR", 
+                      style: TextStyle(color: Colors.white)
+                    ),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[700]),
                 ),
               ),
