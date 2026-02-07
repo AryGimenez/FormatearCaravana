@@ -80,7 +80,7 @@ class _CargaMasivaContent extends StatelessWidget {
                     vertical: 2
                     ),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.1),
+                    color: AppTheme.primary.withOpacity(0.1), // <!> Esto no se porque me aparese tachado
                     borderRadius: BorderRadius.circular(4)
                   ),
                   child: Text(
@@ -120,7 +120,7 @@ class _CargaMasivaContent extends StatelessWidget {
               color: Colors.white,
               border: Border(top: BorderSide(color: Colors.black12))
             ),
-            child: SizedBox(          // <!> Por aca el logo dewsapareses y no se donde 
+            child: SizedBox(// <!> Por aca el logo dewsapareses y no se donde 
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
@@ -130,66 +130,28 @@ class _CargaMasivaContent extends StatelessWidget {
                 icon: const Icon(Icons.cloud_upload), // Icono de la accion   
                 label: const Text("CONFIRMAR Y CARGAR TODO"), // Texto de la accion 
                 
+                style: ButtonStyle(
+                  // 1. Color de fondo
+                  backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                    if (states.contains(WidgetState.disabled)) {
+                      return Colors.grey[300]!; 
+                    }
+                    return AppTheme.primary;
+                  }),
+                  
+                  // 2. Color de Texto e ICONO <!> Creo que aca esta el problema de que el logo al cargar una cravana no se ve pero si el texto 
+                  foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                    if (states.contains(WidgetState.disabled)) {
+                      return Colors.grey[500]!;
+                    }
+                    return Colors.white;
+                  }),
 
-              style: ButtonStyle(
-                // 1. Color de fondo
-                backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
-                  if (states.contains(WidgetState.disabled)) {
-                    return Colors.grey[300]!; 
-                  }
-                  return AppTheme.primary;
-                }),
-                
-                // 2. Color de Texto e ICONO <!> Creo que aca esta el problema de que el logo al cargar una cravana no se ve pero si el texto 
-                foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
-                  if (states.contains(WidgetState.disabled)) {
-                    return Colors.grey[500]!;
-                  }
-                  return Colors.white;
-                }),
-
-                // 3. Estilo de texto
-                textStyle: WidgetStateProperty.all(
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-                ),
+                  // 3. Estilo de texto
+                  textStyle: WidgetStateProperty.all(
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                  ),
               ),
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
-                
-                
-                
-                
-                
-                // <!> Esto creo que esta para sacar 
-                // style: ElevatedButton.styleFrom(
-                //   backgroundColor: AppTheme.primary, // Color de fondo 
-                //   foregroundColor: Colors.white, // Color de texto 
-                //   textStyle: const TextStyle( // Estilo de la fuente 
-                //     fontWeight: FontWeight.bold, // Peso de la fuente 
-                //     fontSize: 16 // Tamaño de la fuente 
-                //     )
-                // ),
-
-
-
-
-
-
-
-
-
               ),
             ),
           ),
@@ -319,7 +281,7 @@ class _CargaMasivaContent extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Boton para cargar de le texto a las caravanas 
+                  // Boton para cargar de le texto a las caravanas
                   SizedBox( //<!> Nose lo que es SizedBox porque no uso un boton normal
                     width: double.infinity,
                     child: OutlinedButton.icon(

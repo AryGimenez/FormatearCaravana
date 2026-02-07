@@ -1,4 +1,7 @@
+// fonten_flutter/lib/screens/carga_masiva/carga_masiva_handler.dart
+
 import 'package:flutter/material.dart';
+import 'package:fonten_flutter/services/api_service.dart';
 import '../../models/caravana_models.dart';
 import '../snig/snig_handler.dart'; // Importa el handler principal para pasarle los datos al final
 
@@ -93,13 +96,10 @@ class CargaMasivaHandler extends ChangeNotifier {
 
     int contador = 0;
     for (var match in matches) {
-      String numero = match.group(0)!;
+      String xNumCaravana = match.group(0)!;
       // Autocompletar con 858 si es necesario (tu lógica de negocio)
-      
-      if (numero.length < 15 && !numero.startsWith("858")) {
-         // Aquí podrías llamar a tu validador o autocompletador
-         // numero = "8580000$numero"; 
-      }
+
+      xNumCaravana = _completarCaravana(xNumCaravana);
 
       // Cálculo de hora correlativa
       DateTime fechaItem = fechaBase;
@@ -110,7 +110,7 @@ class CargaMasivaHandler extends ChangeNotifier {
       }
 
       _tempQueue.add(CaravanaModel(
-        caravana: numero,
+        caravana: xNumCaravana,
         gia: giaController.text.isEmpty ? "S/D" : giaController.text, // Sin Datos si está vacío
         hf_lectura: fechaItem,
         seleccionada: false
@@ -130,27 +130,7 @@ class CargaMasivaHandler extends ChangeNotifier {
 
     String xNumeroFinal = caravanaController.text;  
 
-    // LÓGICA DE AUTOCOMPLETADO
-    // Si escribió solo el visual (ej: "51622384") y son menos de 15 dígitos...
-    if (xNumeroFinal.length < 15) {
-      // 1. Calculamos cuántos ceros faltan para llegar a 15 contando el prefijo 858
-      // Estrategia Senior: Asumimos que si escribe poco, es el final de la caravana uruguaya
-      
-      // Opción A: Rellenar todo con ceros a la izquierda hasta 15
-      // numeroFinal = numeroFinal.padLeft(15, '0'); 
-      
-      // Opción B (Mejor para UY): Agregar 858 + ceros de relleno
-      // Quitamos el 858 si el usuario lo puso parcial (ej: "858123") para evitar "858858..."
-      if (!xNumeroFinal.startsWith("858")) {
-          // Rellenamos lo que falta para llegar a 12 dígitos (15 - 3 del prefijo)
-          String sufijo = xNumeroFinal.padLeft(12, '0');
-          xNumeroFinal = "858$sufijo";
-      } else {
-          // Si ya empezó con 858 pero le faltan números, rellenamos el final
-          xNumeroFinal = xNumeroFinal.padRight(15, '0'); 
-      }
-
-    }
+    xNumeroFinal = _completarCaravana(xNumeroFinal);
 
     // <DM!> Creo el camp de fecha de CaravanaModel
     DateTime fechaFull = DateTime(
@@ -183,6 +163,63 @@ class CargaMasivaHandler extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  // <!> Para sacar version anterior 06/02/2024
+  // String _completarCaravana(String pNumeroCaravana) {
+  //   // LÓGICA DE AUTOCOMPLETADO
+  //   // Si escribió solo el visual (ej: "51622384") y son menos de 15 dígitos...
+  //   if (pNumeroCaravana.length < 15) {
+  //     // 1. Calculamos cuántos ceros faltan para llegar a 15 contando el prefijo 858
+  //     // Asumimos que si escribe poco, es el final de la caravana uruguaya
+      
+  //     // Opción B (Mejor para UY): Agregar 858 + ceros de relleno
+  //     // Quitamos el 858 si el usuario lo puso parcial (ej: "858123") para evitar "858858..."
+  //     if (!pNumeroCaravana.startsWith("858")) {
+  //         // Rellenamos lo que falta para llegar a 12 dígitos (15 - 3 del prefijo)
+  //         String sufijo = pNumeroCaravana.padLeft(12, '0');
+  //         pNumeroCaravana = "858$sufijo";
+  //     } else {
+  //         // Si ya empezó con 858 pero le faltan números, rellenamos el final
+  //         pNumeroCaravana = pNumeroCaravana.padRight(15, '0'); 
+  //     }
+
+  //   }
+  //   return pNumeroCaravana;
+  // }
+
+
+  String _completarCaravana(String pNumeroCaravana) {
+    // 1. Limpieza básica (por si se coló algún espacio)
+    String xNumeroFinal = pNumeroCaravana.trim();
+
+    // 2. Validación de contenido (Solo números)
+    if (!RegExp(r'^[0-9]+$').hasMatch(xNumeroFinal)) {
+      throw Exception("La caravana solo puede contener números.");
+    }
+
+    // 3. Validación de Longitud Excesiva
+    if (xNumeroFinal.length > 15) {
+      throw Exception("El número es demasiado largo (máximo 15 dígitos).");
+    }
+
+    // 4. Caso: Ya tiene 15 dígitos (Formato completo)
+    if (xNumeroFinal.length == 15) {
+      if (!xNumeroFinal.startsWith("858")) {
+        throw Exception("Las caravanas de 15 dígitos deben comenzar con 858 (Uruguay).");
+      }
+      return xNumeroFinal; // Ya está correcta
+    }
+
+    // 5. Caso: Menos de 15 dígitos (Autocompletar)
+    // Asumimos que lo que escribió es el VISUAL.
+    // Rellenamos con ceros a la izquierda hasta completar los 12 dígitos del cuerpo.
+    String cuerpo = xNumeroFinal.padLeft(12, '0');
+    
+    // Agregamos el prefijo país fijo
+    return "858$cuerpo";
+  }
+
+
   /// 3. Eliminar de la cola
   void eliminarDeCola(int index) {
     _tempQueue.removeAt(index);
@@ -190,15 +227,14 @@ class CargaMasivaHandler extends ChangeNotifier {
   }
 
   /// 4. Confirmar todo (Pasa los datos al SnigHandler principal)
+  /// <!> Esto me falta programarlo pero deberia mandar todo al menu principal 
   void confirmarTodo(BuildContext context, SnigHandler mainHandler) {
-    if (_tempQueue.isEmpty) return;
+    if (_tempQueue.isEmpty) return; // <DM!> Si la lista de caravanas temporal esta vais no hace nada 
 
-    // Usamos el método del handler principal (que ya ajustamos para recibir listas)
-    // Asumo que tenés un método setCaravanas o addAll en tu SnigHandler/ApiService
-    // Si no, hacemos un bucle aquí:
-    for (var c in _tempQueue) {
-       // mainHandler.apiService.addCaravana(c); // Ejemplo
-       // O llamar a un metodo masivo:
+    ApiService xApiService = ApiService();
+
+    for (CaravanaModel xCaravana in _tempQueue) {
+       xApiService.addCaravana(xCaravana);
     }
     // mainHandler.agregarListaMasiva(_tempQueue); (Ideal crear este método)
 

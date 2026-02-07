@@ -398,14 +398,32 @@ class _SnigScreenState extends State<SnigScreen> {
                   label: "AGREGAR",
                   icon: Icons.add_circle_outline,
                   color: Colors.green[700]!,
-                  onTap: () {
-                    // Navegamos a la pantalla de Carga Masiva
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CargaMasivaScreen(),
+                  // <!> Carga el menu de carga masiva No entiedo bien la estructrua que hace para la parte de notificacion de cambio de estado
+                  onTap: () async { // 1. Hacemos la función async
+
+                    
+                    await Navigator.push( // Detiene la ejecución aquí (await) hasta que la pantalla nueva se cierre (pop).
+                      context, // Necesario para saber dónde estamos en el árbol de widgets.
+                      MaterialPageRoute( // Crea la animación estándar de transición de pantalla (deslizamiento).
+                        builder: (context) => ChangeNotifierProvider.value( // Inyecta un Provider existente en la nueva ruta.
+                          // 1. EL SECRETO: En lugar de 'create', usamos 'value'.
+                          // Le pasamos la instancia VIVA del SnigHandler que ya tiene los datos.
+                          // 'listen: false' es vital: este botón solo NECESITA el objeto, no necesita redibujarse si cambia.
+                          value: Provider.of<SnigHandler>(context, listen: false),
+                          
+                          // 2. LA PANTALLA HIJA:
+                          // Ahora CargaMasivaScreen podrá hacer Provider.of<SnigHandler> y recibirá
+                          // la misma instancia exacta que tiene la pantalla padre.
+                          child: const CargaMasivaScreen(),
+                        ),
                       ),
                     );
+
+                    // 3. Cuando volvemos, forzamos la actualización de la UI
+                    // Esto le dice al Handler: "Che, revisá el ApiService que seguro cambiaron datos"
+                    if (context.mounted) {
+                      Provider.of<SnigHandler>(context, listen: false).refrescarDesdeService();
+                    }                  
                   },
                 ),
               ],

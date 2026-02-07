@@ -104,6 +104,13 @@ class SnigHandler extends ChangeNotifier {
     _applyFilters();
   }
 
+  //<!> Esto es lo nuevo ver como lo adapto 
+  // void refrescarDesdeService() {
+  //   // Recarga la lista local desde la fuente de verdad (ApiService)
+  //   _filteredCaravanas = List.from(_apiService.getListCaravanas);
+  //   notifyListeners(); // ¡Esto es lo que redibuja la pantalla!
+  // }
+
   /// Aplica los filtros actuales (búsqueda y tipo) a la lista original
   void _applyFilters() {
     List<CaravanaModel> temp = _apiService.getListCaravanas;
@@ -237,4 +244,7 @@ class SnigHandler extends ChangeNotifier {
     _apiService.descargarSimulador(); // O el método que uses
     notifyListeners();
   }
+
+
+
 }
