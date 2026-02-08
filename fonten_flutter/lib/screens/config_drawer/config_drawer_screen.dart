@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../snig/snig_handler.dart';
 import '../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
+
 // <DM!>  Case de Para menu lateral 
 // Botones carga Txt, Csv del lector TruTest, Pdf del simulador.
 // Todas las modificaciones se hacen con la seleccion de sim_caravanas

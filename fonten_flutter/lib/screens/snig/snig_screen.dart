@@ -6,6 +6,8 @@ import 'caravana_item.dart';
 import '../config_drawer/config_drawer_screen.dart';
 import '../../core/theme/app_theme.dart';
 import '../carga_masiva/carga_masiva_screen.dart';
+
+
 //  <DM!> parte vidual 
   // de la pantalla de configuracion del Menu principal de la aplicacion 
   // Funcionalidades 
@@ -86,23 +88,89 @@ class _SnigScreenState extends State<SnigScreen> {
       body: Column( 
         children: [ 
           // Barra de búsqueda
+
+
+
+
+
+
+
+
+
+
+
+
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0), // Padding de la barra de búsqueda
+          //   child: TextField( // TextField de la barra de búsqueda
+          //     controller: _searchController,// Controlador de la barra de búsqueda
+          //     onChanged: _onSearch,// Funcion que se ejecuta cuando se cambia el texto de la barra de búsqueda
+          //     decoration: InputDecoration( // Decoracion de la barra de búsqueda
+          //       hintText: 'Buscar por EID o visual...',// Texto de la barra de búsqueda
+          //       prefixIcon: const Icon(Icons.search),// Icono de la barra de búsqueda
+          //       border: OutlineInputBorder( // Decoracion de la barra de búsqueda
+          //         borderRadius: BorderRadius.circular(12),
+          //         borderSide: BorderSide.none,
+          //       ),
+          //       filled: true,// Relleno de la barra de búsqueda
+          //       fillColor: Colors.grey[100],// Color de la barra de búsqueda
+          //     ),
+          //   ),
+          // ),
+
+
+
           Padding(
             padding: const EdgeInsets.all(16.0), // Padding de la barra de búsqueda
             child: TextField( // TextField de la barra de búsqueda
               controller: _searchController,// Controlador de la barra de búsqueda
               onChanged: _onSearch,// Funcion que se ejecuta cuando se cambia el texto de la barra de búsqueda
-              decoration: InputDecoration( // Decoracion de la barra de búsqueda
-                hintText: 'Buscar por EID o visual...',// Texto de la barra de búsqueda
-                prefixIcon: const Icon(Icons.search),// Icono de la barra de búsqueda
-                border: OutlineInputBorder( // Decoracion de la barra de búsqueda
+              decoration: InputDecoration(
+                hintText: 'Buscar  o visual...',
+                prefixIcon: const Icon(Icons.search),
+                
+                // AGREGAR ESTO: El botón de filtro a la derecha
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.filter_list, 
+                    // Si hay filtros activos, lo pintamos de verde para avisar
+                    color: (handler.filtroGia != null || handler.filtroFecha != null) 
+                        ? AppTheme.primary 
+                        : Colors.grey
+                  ),
+                  onPressed: () => _mostrarPanelFiltros(context, handler),
+                ),
+                
+                border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                filled: true,// Relleno de la barra de búsqueda
-                fillColor: Colors.grey[100],// Color de la barra de búsqueda
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
+              
+              
+              
+              // decoration: InputDecoration( // Decoracion de la barra de búsqueda
+              //   hintText: 'Buscar por EID o visual...',// Texto de la barra de búsqueda
+              //   prefixIcon: const Icon(Icons.search),// Icono de la barra de búsqueda
+              //   border: OutlineInputBorder( // Decoracion de la barra de búsqueda
+              //     borderRadius: BorderRadius.circular(12),
+              //     borderSide: BorderSide.none,
+              //   ),
+              //   filled: true,// Relleno de la barra de búsqueda
+              //   fillColor: Colors.grey[100],// Color de la barra de búsqueda
+              // ),
+
+
+
+
+
             ),
           ),
+
+
+
+
 
           // <DM!> Resumen rápido de totales Total Caravanas / Total Caravanas / Caravanas En Simulador / Total Fuera Simulador
           _buildSummaryBar(handler),// Muestra la pantalla
@@ -139,6 +207,137 @@ class _SnigScreenState extends State<SnigScreen> {
       bottomNavigationBar: _buildTripleActionBar(handler), // Barra de acciones
     );
   }
+
+
+
+
+  /// Despliega un panel modal inferior (BottomSheet) con opciones de filtrado avanzado.
+  ///
+  /// A diferencia de los métodos `_build...` que retornan un Widget para ser incrustado,
+  /// este método ejecuta la función [showModalBottomSheet] del sistema, superponiendo
+  /// una nueva capa interactiva sobre la pantalla actual.
+  ///
+  /// Funcionalidades del panel:
+  /// 1. Selección de **Guía (GIA)** mediante un Dropdown dinámico.
+  /// 2. Selección de **Fecha** mediante un calendario.
+  /// 3. Botón para **limpiar** todos los filtros activos.
+  ///
+  /// Utiliza un [Consumer] interno para redibujar solo el contenido del panel
+  /// cuando el usuario cambia una opción, sin reconstruir toda la pantalla de fondo.
+  void _mostrarPanelFiltros(BuildContext context, SnigHandler handler) {
+    showModalBottomSheet( // Muestra un menu inferior para filtrar las caravanas
+      context: context, // Contexto de la pantalla
+      shape: const RoundedRectangleBorder( // Forma del menu inferior
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)), // Bordes redondeados
+      ),
+      builder: (context) { // Construye el menu inferior
+        // Usamos Consumer para que el panel se redibuje si cambiamos algo
+        return Consumer<SnigHandler>( // Consumer para que el panel se redibuje si cambiamos algo
+          builder: (context, handler, _) { // Construye el menu inferior
+            return Padding( // Padding del menu inferior
+              padding: const EdgeInsets.all(20.0), // Padding del menu inferior
+              child: Column( // Columna del menu inferior
+                mainAxisSize: MainAxisSize.min, // Se ajusta al contenido
+                crossAxisAlignment: CrossAxisAlignment.start, // Alineacion al inicio
+                children: [ // Lista de widgets
+                  // Título y Botón de Limpiar
+                  Row( // Fila del titulo y boton de limpiar
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Alineacion al centro
+                    children: [ // Lista de widgets
+                      const Text("Filtros Avanzados", // Titulo
+                        style: TextStyle(
+                          fontSize: 18, 
+                          fontWeight: 
+                          FontWeight.bold
+                          )), // Estilo del titulo
+                      TextButton(
+                        onPressed: () => handler.limpiarFiltrosAvanzados(), // Funcion que se ejecuta cuando se limpia el filtro
+                        child: const Text("Limpiar todo", 
+                          style: TextStyle(color: Colors.red)), // Texto del boton
+                      )
+                    ],
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 10),
+
+                  // 1. DROPDOWN DE GUÍA (GIA)
+                  const Text("Filtrar por Guía:", 
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.grey
+                    )),
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        hint: const Text("Seleccionar Guía"),
+                        value: handler.filtroGia,
+                        items: handler.listaGiasDisponibles.map((String gia) {
+                          return DropdownMenuItem<String>(
+                            value: gia,
+                            child: Text(gia),
+                          );
+                        }).toList(),
+                        onChanged: (val) => handler.setFiltroGia(val),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 2. SELECTOR DE FECHA
+                  const Text("Filtrar por Fecha:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const SizedBox(height: 5),
+                  InkWell(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: handler.filtroFecha ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null) handler.setFiltroFecha(picked);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8)
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            handler.filtroFecha == null 
+                              ? "Todas las fechas" 
+                              : "${handler.filtroFecha!.day}/${handler.filtroFecha!.month}/${handler.filtroFecha!.year}",
+                            style: TextStyle(
+                              color: handler.filtroFecha == null ? Colors.grey[600] : Colors.black
+                            ),
+                          ),
+                          const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 20),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
 
   // <DM!> Por lo que me acuerdo estao es para mostrar un resumen de las caravanas filtradas
   // 

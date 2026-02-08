@@ -20,6 +20,14 @@ class SnigHandler extends ChangeNotifier {
   /// Lista para filtrar las caravanas que se muestran en la UI.
   List<CaravanaModel> _filteredCaravanas = [];
 
+
+  String? _filtroGia; // Si es null, no filtra. Si tiene valor, filtra por esa Guía.
+  DateTime? _filtroFecha; // Si es null, no filtra.
+
+  // Getters para la UI
+  String? get filtroGia => _filtroGia;
+  DateTime? get filtroFecha => _filtroFecha;
+
   /// Se encarga de indicar si se esta cargando datos.
   bool _isLoading = false;
 
@@ -104,39 +112,109 @@ class SnigHandler extends ChangeNotifier {
     _applyFilters();
   }
 
-  //<!> Esto es lo nuevo ver como lo adapto 
-  // void refrescarDesdeService() {
-  //   // Recarga la lista local desde la fuente de verdad (ApiService)
-  //   _filteredCaravanas = List.from(_apiService.getListCaravanas);
-  //   notifyListeners(); // ¡Esto es lo que redibuja la pantalla!
-  // }
+  // --- MÉTODOS PARA OBTENER DATOS ÚNICOS (Para llenar los Combo Boxes) ---
+  
+  /// Obtiene la lista de todas las Guías (GIAs) únicas que existen en la lista actual.
+  List<String> get listaGiasDisponibles {
+    // Tomamos todas las caravanas, extraemos la GIA, las convertimos en Set para borrar duplicados y volvemos a Lista.
+    return _apiService.getListCaravanas.map((e) => e.gia).toSet().toList();
+  }
 
-  /// Aplica los filtros actuales (búsqueda y tipo) a la lista original
+  // --- SETTERS (Actualizan y aplican el filtro) ---
+
+  void setFiltroGia(String? gia) {
+    _filtroGia = gia;
+    _applyFilters(); // Re-calculamos la lista
+  }
+
+  void setFiltroFecha(DateTime? fecha) {
+    _filtroFecha = fecha;
+    _applyFilters();
+  }
+
+  void limpiarFiltrosAvanzados() {
+    _filtroGia = null;
+    _filtroFecha = null;
+    _applyFilters();
+  }
+
+  // Buscá tu método existente _applyFilters y agregale esta lógica en el medio:
   void _applyFilters() {
-    List<CaravanaModel> temp = _apiService.getListCaravanas;
+    List<CaravanaModel> xListCarabTemp = _apiService.getListCaravanas;
 
-    // 1. Filtrar por búsqueda de texto
+    // 1. Filtrar por búsqueda de texto (YA LO TENÍAS)
     if (_currentSearchQuery.isNotEmpty) {
-      temp =
-          temp.where((c) => c.caravana.contains(_currentSearchQuery)).toList();
+      xListCarabTemp = xListCarabTemp.where((c) => c.caravana.contains(_currentSearchQuery)).toList();
     }
 
-    // 2. Filtrar por tipo (Categoría)
+    // 2. FILTROS NUEVOS (AGREGAR ESTO) -----------------------
+    
+    // Filtrar por Guía
+    if (_filtroGia != null) {
+      xListCarabTemp = xListCarabTemp.where((c) => c.gia == _filtroGia).toList();
+    }
+
+    // Filtrar por Fecha (Comparamos Año, Mes y Día, ignorando la hora)
+    if (_filtroFecha != null) {
+      xListCarabTemp = xListCarabTemp.where((c) {
+        return c.hf_lectura.year == _filtroFecha!.year &&
+               c.hf_lectura.month == _filtroFecha!.month &&
+               c.hf_lectura.day == _filtroFecha!.day;
+      }).toList();
+    }
+    // --------------------------------------------------------
+
+    // 3. Filtrar por tipo (Categoría) (YA LO TENÍAS)
     switch (_activeFilter) {
       case CaravanaFilterType.ok:
-        temp = temp.where((c) => c.esOk).toList();
+        xListCarabTemp = xListCarabTemp.where((c) => c.esOk).toList();
         break;
       case CaravanaFilterType.faltantes:
-        temp = temp.where((c) => !c.esOk).toList();
+        xListCarabTemp = xListCarabTemp.where((c) => !c.esOk).toList();
         break;
       case CaravanaFilterType.todos:
-        // No hacer nada
         break;
     }
 
-    _filteredCaravanas = temp;
+    _filteredCaravanas = xListCarabTemp ;
     notifyListeners();
   }
+
+
+
+
+
+
+
+
+
+
+
+  //<!> Version Vieaja Filtros -------------------------------
+
+  /// Aplica los filtros actuales (búsqueda y tipo) a la lista original
+  // void _applyFilters() {
+  //   List<CaravanaModel> temp = _apiService.getListCaravanas;
+  //   // 1. Filtrar por búsqueda de texto
+  //   if (_currentSearchQuery.isNotEmpty) {
+  //     temp =
+  //         temp.where((c) => c.caravana.contains(_currentSearchQuery)).toList();
+  //   }
+  //   // 2. Filtrar por tipo (Categoría)
+  //   switch (_activeFilter) {
+  //     case CaravanaFilterType.ok:
+  //       temp = temp.where((c) => c.esOk).toList();
+  //       break;
+  //     case CaravanaFilterType.faltantes:
+  //       temp = temp.where((c) => !c.esOk).toList();
+  //       break;
+  //     case CaravanaFilterType.todos:
+  //       // No hacer nada
+  //       break;
+  //   }
+  //   _filteredCaravanas = temp;
+  //   notifyListeners();
+  // }
 
   /// Establece el filtro de tipo y actualiza la lista
   void setFilter(CaravanaFilterType type) {
@@ -145,6 +223,25 @@ class SnigHandler extends ChangeNotifier {
       _applyFilters();
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   void agregarCaravana(CaravanaModel nueva) {
     try {
