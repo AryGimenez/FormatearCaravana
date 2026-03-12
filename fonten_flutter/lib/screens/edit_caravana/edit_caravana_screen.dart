@@ -1,50 +1,74 @@
 // frontend/lib/screens/edit_caravana/edit_caravana_screen.dart
 
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'edit_caravana_handler.dart';
+import '../../core/theme/app_theme.dart';
+import '../../models/caravana_models.dart';
 
-class EditCaravanaScreen extends StatefulWidget {
-  final String eidInicial;
-  final String giaInicial;
-  final TimeOfDay horaInicial;
+//class EditCaravanaScreen extends StatefulWidget {
+
+class EditCaravanaScreen extends StatelessWidget {
+
+
+  final CaravanaModel caravanaModel; // Caravana a modificar 
   
   // Función que le pedimos a la lógica para saber si el número ya existe
   // Retorna el mensaje de error o null si está todo bien
   final String? Function(String val) onValidateEID;
 
-  const EditCaravanaDialog({
+  const EditCaravanaScreen({
     super.key,
-    required this.eidInicial,
-    required this.giaInicial,
-    required this.horaInicial,
+    required this.caravanaModel,
     required this.onValidateEID,
   });
 
+  // @override
+  // State<EditCaravanaScreen> createState() => _EditCaravanaScreenState();
+
   @override
-  State<EditCaravanaDialog> createState() => _EditCaravanaDialogState();
+  Widget build(BuildContext context) {
+    // Inyectamos el Handler específico para este diálogo
+    return ChangeNotifierProvider(
+      create: (_) => EditCaravanaHandler(
+        caravanaOriginal: caravanaModel,
+        onValidateEID: onValidateEID,
+      ),
+      child: const _EditCaravanaContent(),
+    );
+  }
+
+
+
 }
 
-class _editCaravanaScreen extends State<EditCaravanaScreen> {
-  late TextEditingController _eidController;
-  late TextEditingController _giaController;
-  late TimeOfDay _selectedTime;
+// class _EditCaravanaScreenState extends State<EditCaravanaScreen> {
+
+class _EditCaravanaContent extends StatelessWidget{
+
+  // late TextEditingController _caravanaController;
+  // late TextEditingController _giaController;
+  // late TimeOfDay _selectedTime;
   
   final _formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
-    super.initState();
-    _eidController = TextEditingController(text: widget.eidInicial);
-    _giaController = TextEditingController(text: widget.giaInicial);
-    _selectedTime = widget.horaInicial;
-  }
 
-  @override
-  void dispose() {
-    _eidController.dispose();
-    _giaController.dispose();
-    super.dispose();
-  }
+  // /// Inicia los componentes pasando por parametro la caravana a modificar <!> Mejorar Comentario
+  // @override
+  // void initState() { 
+  //   super.initState();
+  //   _caravanaController = TextEditingController(text: widget.caravanaModel.caravana);
+  //   _giaController = TextEditingController(text: widget.caravanaModel.gia);
+  //   DateTime xHora = widget.caravanaModel.hf_lectura;
+  //   _selectedTime = TimeOfDay(hour: xHora.hour, minute: xHora.minute);
+  // }
+
+  // @override
+  // void dispose() {
+  //   _caravanaController.dispose();
+  //   _giaController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +119,7 @@ class _editCaravanaScreen extends State<EditCaravanaScreen> {
                     _buildLabel("EID (Nº CARAVANA)"),
                     const SizedBox(height: 6),
                     TextFormField(
-                      controller: _eidController,
+                      controller: _caravanaController,
                       keyboardType: TextInputType.number,
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       decoration: _inputDecoration(),
@@ -189,7 +213,7 @@ class _editCaravanaScreen extends State<EditCaravanaScreen> {
                         if (_formKey.currentState!.validate()) {
                           // Si todo es válido, devolvemos los datos crudos
                           Navigator.pop(context, {
-                            'eid': _eidController.text,
+                            'eid': _caravanaController.text,
                             'gia': _giaController.text,
                             'hora': _selectedTime
                           });

@@ -1,0 +1,31 @@
+Analyzing fonten_flutter...                                     
+
+warning • The include file 'package:flutter_lints/flutter.yaml' in '/home/ary/Documentos/Project/app/FormatearCaravana/fonten_flutter/analysis_options.yaml' can't be found when analyzing '/home/ary/Documentos/Project/app/FormatearCaravana/fonten_flutter' • analysis_options.yaml:10:10 • include_file_not_found
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/carga_masiva/carga_masiva_screen.dart:83:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/carga_masiva/widgets/temp_caravana_item.dart:26:33 • deprecated_member_use
+warning • The value of the field '_errorMessage' isn't used • lib/screens/config_drawer/config_drawer_handler.dart:10:11 • unused_field
+warning • The value of the field '_isLoading' isn't used • lib/screens/config_drawer/config_drawer_handler.dart:13:8 • unused_field
+warning • The value of the local variable 'baseTime' isn't used • lib/screens/config_drawer/config_drawer_handler.dart:178:14 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/config_drawer/config_drawer_screen.dart:523:35 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/config_drawer/config_drawer_screen.dart:531:44 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/config_drawer/config_drawer_screen.dart:544:37 • deprecated_member_use
+warning • Unused import: '../snig/snig_handler.dart' • lib/screens/edit_caravana/edit_caravana_screen.dart:5:8 • unused_import
+  error • The final variable 'eidInicial' must be initialized • lib/screens/edit_caravana/edit_caravana_screen.dart:8:16 • final_not_initialized
+  error • The final variable 'giaInicial' must be initialized • lib/screens/edit_caravana/edit_caravana_screen.dart:9:16 • final_not_initialized
+  error • The final variable 'horaInicial' must be initialized • lib/screens/edit_caravana/edit_caravana_screen.dart:10:19 • final_not_initialized
+  error • The final variable 'onValidateEID' must be initialized • lib/screens/edit_caravana/edit_caravana_screen.dart:14:38 • final_not_initialized
+  error • Getters, setters and methods can't be declared to be 'const' • lib/screens/edit_caravana/edit_caravana_screen.dart:16:3 • const_method
+  error • 'EditCaravanaDialog' must have a method body because 'EditCaravanaScreen' isn't abstract • lib/screens/edit_caravana/edit_caravana_screen.dart:16:9 • concrete_class_with_abstract_member
+  error • Super parameters can only be used in non-redirecting generative constructors • lib/screens/edit_caravana/edit_caravana_screen.dart:17:5 • invalid_super_formal_parameter_location
+  error • Initializing formal parameters can only be used in constructors • lib/screens/edit_caravana/edit_caravana_screen.dart:18:5 • field_initializer_outside_constructor
+  error • Initializing formal parameters can only be used in constructors • lib/screens/edit_caravana/edit_caravana_screen.dart:19:5 • field_initializer_outside_constructor
+  error • Initializing formal parameters can only be used in constructors • lib/screens/edit_caravana/edit_caravana_screen.dart:20:5 • field_initializer_outside_constructor
+  error • Initializing formal parameters can only be used in constructors • lib/screens/edit_caravana/edit_caravana_screen.dart:21:5 • field_initializer_outside_constructor
+  error • The name 'EditCaravanaDialog' isn't a type, so it can't be used as a type argument • lib/screens/edit_caravana/edit_caravana_screen.dart:25:9 • non_type_as_type_argument
+  error • 'EditCaravanaScreen.createState' ('State<dynamic> Function()') isn't a valid override of 'StatefulWidget.createState' ('State<StatefulWidget> Function()') • lib/screens/edit_caravana/edit_caravana_screen.dart:25:29 • invalid_override
+  error • The method '_EditCaravanaDialogState' isn't defined for the type 'EditCaravanaScreen' • lib/screens/edit_caravana/edit_caravana_screen.dart:25:46 • undefined_method
+warning • The declaration '_editCaravanaScreen' isn't referenced • lib/screens/edit_caravana/edit_caravana_screen.dart:28:7 • unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/snig/snig_screen.dart:397:37 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/snig/snig_screen.dart:399:56 • deprecated_member_use
+
+27 issues found. (ran in 2.4s)

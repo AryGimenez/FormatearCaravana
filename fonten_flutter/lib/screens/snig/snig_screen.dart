@@ -27,7 +27,7 @@ class SnigScreen extends StatefulWidget {
 }
 
 class _SnigScreenState extends State<SnigScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController(); // <!> Esto no se si va aca. 
 
   @override
   void initState() {
@@ -87,39 +87,6 @@ class _SnigScreenState extends State<SnigScreen> {
       // 3. EL CUERPO (LISTA) ------------------------------------------------
       body: Column( 
         children: [ 
-          // Barra de búsqueda
-
-
-
-
-
-
-
-
-
-
-
-
-          // Padding(
-          //   padding: const EdgeInsets.all(16.0), // Padding de la barra de búsqueda
-          //   child: TextField( // TextField de la barra de búsqueda
-          //     controller: _searchController,// Controlador de la barra de búsqueda
-          //     onChanged: _onSearch,// Funcion que se ejecuta cuando se cambia el texto de la barra de búsqueda
-          //     decoration: InputDecoration( // Decoracion de la barra de búsqueda
-          //       hintText: 'Buscar por EID o visual...',// Texto de la barra de búsqueda
-          //       prefixIcon: const Icon(Icons.search),// Icono de la barra de búsqueda
-          //       border: OutlineInputBorder( // Decoracion de la barra de búsqueda
-          //         borderRadius: BorderRadius.circular(12),
-          //         borderSide: BorderSide.none,
-          //       ),
-          //       filled: true,// Relleno de la barra de búsqueda
-          //       fillColor: Colors.grey[100],// Color de la barra de búsqueda
-          //     ),
-          //   ),
-          // ),
-
-
-
           Padding(
             padding: const EdgeInsets.all(16.0), // Padding de la barra de búsqueda
             child: TextField( // TextField de la barra de búsqueda
@@ -148,29 +115,8 @@ class _SnigScreenState extends State<SnigScreen> {
                 fillColor: Colors.grey[100],
               ),
               
-              
-              
-              // decoration: InputDecoration( // Decoracion de la barra de búsqueda
-              //   hintText: 'Buscar por EID o visual...',// Texto de la barra de búsqueda
-              //   prefixIcon: const Icon(Icons.search),// Icono de la barra de búsqueda
-              //   border: OutlineInputBorder( // Decoracion de la barra de búsqueda
-              //     borderRadius: BorderRadius.circular(12),
-              //     borderSide: BorderSide.none,
-              //   ),
-              //   filled: true,// Relleno de la barra de búsqueda
-              //   fillColor: Colors.grey[100],// Color de la barra de búsqueda
-              // ),
-
-
-
-
-
             ),
           ),
-
-
-
-
 
           // <DM!> Resumen rápido de totales Total Caravanas / Total Caravanas / Caravanas En Simulador / Total Fuera Simulador
           _buildSummaryBar(handler),// Muestra la pantalla
