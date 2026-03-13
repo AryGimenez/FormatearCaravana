@@ -48,7 +48,7 @@ class CaravanaModel {
     // Limpiamos la hora para que sea HHMMSS
     String horaLimpia = DateFormat('HHmmss').format(hf_lectura);
 
-    return "[|A0000000$caravana|$dia$mes$anio|$horaLimpia|$gia|]";
+    return "[|A00000000$caravana|$dia$mes$anio|$horaLimpia|$gia|]";
   }
 
   // Método para crear un objeto a partir de un JSON

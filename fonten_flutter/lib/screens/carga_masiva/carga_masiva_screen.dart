@@ -107,6 +107,7 @@ class _CargaMasivaContent extends StatelessWidget {
                   itemBuilder: (context, index) => TempCaravanaItem(
                     caravana: handler.tempQueue[index],
                     onDelete: () => handler.eliminarDeCola(index),
+                    onEdit: () => handler.editarDeCola(index),
                   ),
                 ),
           ),

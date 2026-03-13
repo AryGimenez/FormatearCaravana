@@ -3,12 +3,14 @@ import '../../../models/caravana_models.dart';
 
 class TempCaravanaItem extends StatelessWidget {
   final CaravanaModel caravana;
-  final VoidCallback onDelete;
+  final VoidCallback onDelete; 
+  final VoidCallback onEdit;
 
   const TempCaravanaItem({
     super.key, 
     required this.caravana, 
-    required this.onDelete
+    required this.onDelete,
+    required this.onEdit
   });
 
   @override
@@ -72,6 +74,11 @@ class TempCaravanaItem extends StatelessWidget {
             icon: const Icon(Icons.delete_outline, color: Colors.red),
             onPressed: onDelete,
             splashRadius: 20,
+          ),
+          // Boton Modificar
+          IconButton(
+            icon: const Icon(Icons.edit, color: Colors.blue),
+            onPressed: () => onEdit()
           )
         ],
       ),
