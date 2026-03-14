@@ -230,15 +230,19 @@ class CargaMasivaHandler extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 3. Editar de la cola
-  void editarDeCola(int index) {
-    CaravanaModel xCaravana = _tempQueue[index];
-    EditCaravanaScreen xEditCaravanaScreen = EditCaravanaScreen(
-      caravanaModel: xCaravana,
-      onValidateEID: onValidateEID,
-    );
+
+  // <!> para sacar 14/03/2026 Creo que esto es de lo que yo estoba intentando implmentar para
+  //     el boton modificar Carvana 
+  // 
+  // /// 3. Editar de la cola
+  // void editarDeCola(int index) {
+  //   CaravanaModel xCaravana = _tempQueue[index];
+  //   EditCaravanaScreen xEditCaravanaScreen = EditCaravanaScreen(
+  //     caravanaModel: xCaravana,
+  //     onValidateEID: onValidateEID,
+  //   );
     
-  }
+  // }
 
   /// 4. Confirmar todo (Pasa los datos al SnigHandler principal)
   /// <!> Esto me falta programarlo pero deberia mandar todo al menu principal
@@ -254,5 +258,43 @@ class CargaMasivaHandler extends ChangeNotifier {
     // mainHandler.agregarListaMasiva(_tempQueue); (Ideal crear este método)
 
     Navigator.pop(context); // Volvemos a la pantalla principal
+  }
+
+
+  // --- MÉTODOS DE EDICIÓN ---
+
+  /// Valida si un EID ya existe en la cola, excluyendo el que estamos editando
+  String? validarDuplicadoEnEdicion(String nuevoEID, int indexEditando) {
+    bool existe = _tempQueue.asMap().entries.any((entry) {
+      if (entry.key == indexEditando) return false; // Ignora el propio
+      return entry.value.caravana == nuevoEID;
+    });
+
+    if (existe) return "Este EID ya existe en la lista temporal";
+    return null;
+  }
+
+
+  /// Recibe los datos del diálogo y actualiza el modelo en la lista
+  void guardarEdicion(int index, String nuevoEID, String nuevaGia, TimeOfDay nuevaHora) {
+    CaravanaModel original = _tempQueue[index];
+    
+    DateTime nuevaFecha = DateTime(
+      original.hf_lectura.year,
+      original.hf_lectura.month,
+      original.hf_lectura.day,
+      nuevaHora.hour,
+      nuevaHora.minute,
+    );
+
+    _tempQueue[index] = CaravanaModel(
+      caravana: nuevoEID,
+      gia: nuevaGia,
+      hf_lectura: nuevaFecha,
+      seleccionada: original.seleccionada,
+      esOk: original.esOk,
+    );
+
+    notifyListeners();
   }
 }
