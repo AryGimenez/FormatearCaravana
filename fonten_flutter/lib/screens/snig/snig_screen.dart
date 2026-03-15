@@ -21,10 +21,12 @@ import '../carga_masiva/carga_masiva_screen.dart';
   // <>  Boton Remover el simulador cargado
 class SnigScreen extends StatefulWidget {
   const SnigScreen({super.key});
-
+  
+  
   @override
   State<SnigScreen> createState() => _SnigScreenState();
 }
+
 
 class _SnigScreenState extends State<SnigScreen> {
   final TextEditingController _searchController = TextEditingController(); // <!> Esto no se si va aca. 
@@ -37,6 +39,7 @@ class _SnigScreenState extends State<SnigScreen> {
       Provider.of<SnigHandler>(context, listen: false).fetchCaravanas();
     });
   }
+
 
   void _onSearch(String query) {
     Provider.of<SnigHandler>(context, listen: false).filterCaravanas(query);
