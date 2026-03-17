@@ -108,61 +108,28 @@ class _CargaMasivaContent extends StatelessWidget {
                   itemBuilder: (context, index) => TempCaravanaItem(
                     caravana: handler.tempQueue[index],
                     onDelete: () => handler.eliminarDeCola(index),
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                    // onEdit: () => handler.editarDeCola(index),
-                 
-                 
-                 
-                 
+                    onEdit: () async {
+                      // 1. Abrimos el diálogo y esperamos el resultado
+                      final resultado = await showDialog<Map<String, dynamic>>(
+                        context: context,
+                        barrierColor: Colors.black54,
+                        builder: (context) => EditCaravanaScreen(
+                          caravanaModel: handler.tempQueue[index],
+                          // Pasamos el método de validación del handler
+                          onValidateEID: (val) => handler.validarDuplicadoEnEdicion(val, index),
+                        ),
+                      );
 
-                 
-                 
-                      onEdit: () async {
-                        // 1. Abrimos el diálogo y esperamos el resultado
-                        final resultado = await showDialog<Map<String, dynamic>>(
-                          context: context,
-                          barrierColor: Colors.black54,
-                          builder: (context) => EditCaravanaScreen(
-                            caravanaModel: handler.tempQueue[index],
-                            // Pasamos el método de validación del handler
-                            onValidateEID: (val) => handler.validarDuplicadoEnEdicion(val, index),
-                          ),
+                      // 2. Si devolvió algo, le decimos al Handler que lo guarde
+                      if (resultado != null) {
+                        handler.guardarEdicion(
+                          index, 
+                          resultado['eid'], 
+                          resultado['gia'], 
+                          resultado['hora']
                         );
-
-                        // 2. Si devolvió algo, le decimos al Handler que lo guarde
-                        if (resultado != null) {
-                          handler.guardarEdicion(
-                            index, 
-                            resultado['eid'], 
-                            resultado['gia'], 
-                            resultado['hora']
-                          );
-                        }
+                      }
                       },
-                 
-                 
-                 
-                 
-                 
-                 
-                 
-                 
-                 
-                 
                   ),
                 ),
           ),

@@ -341,6 +341,51 @@ class SnigHandler extends ChangeNotifier {
     _apiService.descargarSimulador(); // O el método que uses
     notifyListeners();
   }
+  
+  // --- MÉTODOS PARA EDITAR CARAVANAS ---
+
+  /// Valida si el nuevo EID ingresado ya existe en el sistema
+  String? validarDuplicadoEnEdicion(String nuevoEID, int indexFiltrado) {
+    final caravanaOriginal = _filteredCaravanas[indexFiltrado];
+    
+    bool existe = _apiService.getListCaravanas.any((c) {
+      if (c == caravanaOriginal) return false; // Ignoramos la caravana que estamos editando
+      return c.caravana == nuevoEID;
+    });
+
+    if (existe) return "Este EID ya existe en la lista";
+    return null;
+  }
+
+  /// Guarda los cambios en el modelo principal
+  void guardarCaravanaEditada(int indexFiltrado, String nuevoEID, String nuevaGia, TimeOfDay nuevaHora) {
+    final caravanaOriginal = _filteredCaravanas[indexFiltrado];
+    final realIndex = _apiService.getListCaravanas.indexOf(caravanaOriginal);
+    
+    if (realIndex != -1) {
+      // Reconstruimos la fecha
+      DateTime nuevaFecha = DateTime(
+        caravanaOriginal.hf_lectura.year,
+        caravanaOriginal.hf_lectura.month,
+        caravanaOriginal.hf_lectura.day,
+        nuevaHora.hour,
+        nuevaHora.minute,
+      );
+
+      final editada = CaravanaModel(
+        caravana: nuevoEID,
+        gia: nuevaGia,
+        hf_lectura: nuevaFecha,
+        seleccionada: caravanaOriginal.seleccionada,
+        esOk: caravanaOriginal.esOk,
+      );
+
+      // Reemplazamos la vieja por la nueva en la lista original
+      _apiService.getListCaravanas[realIndex] = editada;
+      
+      _applyFilters(); // Refresca la UI
+    }
+  }
 
 
 

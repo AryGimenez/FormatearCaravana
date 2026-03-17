@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:fonten_flutter/services/api_service.dart';
 import '../../models/caravana_models.dart';
-import '../edit_caravana/edit_caravana_screen.dart';
 import '../snig/snig_handler.dart'; // Importa el handler principal para pasarle los datos al final
 
 // <!> Documetar codigo  no tengo ni ida que es esto !!!!!!!!!!!!!!!!!!!!!

@@ -127,10 +127,33 @@ class CaravanaItem extends StatelessWidget { //<!> Restructar con el disenio de 
               children: [ // Define los widgets que componen la columna
                 // Estado de la caravana segun simulador OK o Faltante -----
                 _buildStatusBadge(caravana.esOk), // Define el chip de estado
-                // Boton de eliminacion -----
-                IconButton( // Define el boton de eliminacion
-                  icon: const Icon(Icons.delete_outline, color: Colors.grey), // Define el icono de eliminacion
-                  onPressed: onDelete, // Define la accion al presionar el boton de eliminacion
+
+                const SizedBox(height: 8),
+
+                Row(
+
+                  mainAxisSize: MainAxisSize.min, // Que la fila ocupe solo lo necesario
+                  // Boton de eliminacion -----
+                  children: [
+                    // Boton de eliminacion -----
+                    IconButton( 
+                      icon: const Icon(Icons.edit_square, color: Colors.blue, size: 22), 
+                      onPressed: onModify, 
+                      constraints: const BoxConstraints(), // Achica el área de padding por defecto
+                      padding: const EdgeInsets.all(4), // Padding más ajustado
+                    ),
+
+                    const SizedBox(width: 4), // Separación entre botones
+          
+                    // Boton de Eliminacion -----
+                    IconButton( 
+                      icon: const Icon(Icons.delete_outline, color: Colors.red, size: 22), 
+                      onPressed: onDelete, 
+                      constraints: const BoxConstraints(), // Achica el área de padding por defecto
+                      padding: const EdgeInsets.all(4), // Padding más ajustado
+                    ),
+                  
+                  ] 
                 )
               ],
             )
