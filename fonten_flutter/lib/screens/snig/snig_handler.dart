@@ -225,24 +225,6 @@ class SnigHandler extends ChangeNotifier {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   void agregarCaravana(CaravanaModel nueva) {
     try {
       _apiService.addCaravana(nueva);
@@ -263,18 +245,8 @@ class SnigHandler extends ChangeNotifier {
       _applyFilters();
     }
   }
+  
 
-  //<!> Aca iria la funcion modificar caravana disparada por el CardItem
-  // Tengo que crear una interfas que me de un menu para esta accion
-  void modificarCaravana(int index) {
-    final caravanaAEliminar = _filteredCaravanas[index];
-    final realIndex = _apiService.getListCaravanas.indexOf(caravanaAEliminar);
-    if (realIndex != -1) {
-      _apiService.removeCaravana(realIndex);
-      _apiService.removeCaravana(realIndex);
-      _applyFilters();
-    }
-  }
 
   void eliminarSeleccionadas() {
     //<!> Aca deberia llamar a el metdo eliminar caravana ademas de app service
@@ -341,7 +313,7 @@ class SnigHandler extends ChangeNotifier {
     _apiService.descargarSimulador(); // O el método que uses
     notifyListeners();
   }
-  
+
   // --- MÉTODOS PARA EDITAR CARAVANAS ---
 
   /// Valida si el nuevo EID ingresado ya existe en el sistema
