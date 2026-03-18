@@ -133,9 +133,9 @@ class CaravanaItem extends StatelessWidget { //<!> Restructar con el disenio de 
                 Row(
 
                   mainAxisSize: MainAxisSize.min, // Que la fila ocupe solo lo necesario
-                  // Boton de eliminacion -----
+                  
                   children: [
-                    // Boton de eliminacion -----
+                    // Boton de modificar -----
                     IconButton( 
                       icon: const Icon(Icons.edit_square, color: Colors.blue, size: 22), 
                       onPressed: onModify, 

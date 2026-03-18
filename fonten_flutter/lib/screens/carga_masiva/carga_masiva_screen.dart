@@ -107,14 +107,14 @@ class _CargaMasivaContent extends StatelessWidget {
                   itemCount: handler.tempQueue.length,
                   itemBuilder: (context, index) => TempCaravanaItem(
                     caravana: handler.tempQueue[index],
-                    onDelete: () => handler.eliminarDeCola(index),
-                    onEdit: () async {
+                    onDelete: () => handler.eliminarDeCola(index), // Accion eliminar ----
+                    onEdit: () async { // Accion modificar ----- 
                       // 1. Abrimos el diálogo y esperamos el resultado
                       final resultado = await showDialog<Map<String, dynamic>>(
                         context: context,
                         barrierColor: Colors.black54,
                         builder: (context) => EditCaravanaScreen(
-                          caravanaModel: handler.tempQueue[index],
+                          caravanaModel: handler.tempQueue[index], // Retorna la caravana segun el indise que seleccione.  
                           // Pasamos el método de validación del handler
                           onValidateEID: (val) => handler.validarDuplicadoEnEdicion(val, index),
                         ),
@@ -172,7 +172,10 @@ class _CargaMasivaContent extends StatelessWidget {
 
                   // 3. Estilo de texto
                   textStyle: WidgetStateProperty.all(
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                    const TextStyle(
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 16
+                    )
                   ),
               ),
               ),
@@ -408,21 +411,6 @@ class _CargaMasivaContent extends StatelessWidget {
                           fontWeight: FontWeight.bold, 
                           color: Colors.grey
                         )),
-                      
-                      // Switch Correlativa pequeño
-                      // Row( // <!> Voy a sacarlo y dejar que simpre trabaje correlativo 
-                      //   children: [
-                      //     const Text("Correlativa", style: TextStyle(fontSize: 8)),
-                      //     SizedBox(
-                      //       height: 20,
-                      //       child: Switch(
-                      //         value: handler.isCorrelativeEnabled,
-                      //         onChanged: handler.toggleCorrelative,
-                      //         activeColor: AppTheme.primary,
-                      //       ),
-                      //     )
-                      //   ],
-                      // )
                     ],
                   ),
                   InkWell(
@@ -491,7 +479,10 @@ class _CargaMasivaContent extends StatelessWidget {
                     child: Container(
                       height: 50,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey), 
+                        borderRadius: BorderRadius.circular(4)
+                        ),
                       alignment: Alignment.centerLeft,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
