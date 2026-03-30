@@ -5,10 +5,13 @@ import 'package:fonten_flutter/models/caravana_models.dart';
 class ConfigDrawerHandler extends ChangeNotifier {
   final ApiService _apiService = ApiService(); // Instanica de logica global del sistema todos los servicios van aca 
 
+
+  // <!> Croe que no va pero no estoy seguro 
   /// Se encarga de indicar si se ha producido un error. Lo utiliso para mostrar
   /// mensaje de erro
   String? _errorMessage; // <!> Esto creo que no va 
 
+   // <!> Croe que no va pero no estoy seguro 
   /// Indica si se está cargando un archivo
   bool _isLoading = false; // <!> Esto creo que no va 
 
@@ -219,4 +222,6 @@ class ConfigDrawerHandler extends ChangeNotifier {
     // IMPORTANTE: Notificar a la UI que los datos cambiaron
     notifyListeners();
   }
+
+
 }
