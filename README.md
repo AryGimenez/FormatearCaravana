@@ -54,3 +54,46 @@ La aplicación está construida utilizando **Flutter** y **Dart**, siguiendo pri
    ```bash
    git clone https://github.com/AryGimenez/FormatearCaravana.git
    cd FormatearCaravana/fonten_flutter
+   ```
+
+2. Instala las dependencias de Flutter:
+   ```bash
+   flutter pub get
+   ```
+
+### Ejecutar en Desarrollo
+
+**Para Windows:**
+Asegúrate de tener habilitado el soporte para escritorio (Visual Studio con herramientas de C++) y ejecuta:
+```bash
+flutter run -d windows
+```
+
+**Para Linux:**
+Asegúrate de tener instaladas las dependencias de desarrollo (CMake, Ninja, GTK, pkg-config, etc.) y ejecuta:
+```bash
+flutter run -d linux
+```
+
+---
+
+## 🐳 Despliegue con Docker (Web App)
+
+Si deseas hostear **SNIG Connect** como una aplicación web, puedes construir un contenedor Docker. Esto compila la versión web de Flutter y la sirve mediante un servidor ligero (como Nginx).
+
+### Pasos para compilar y ejecutar el contenedor
+
+1. **Construir la imagen de Docker:**
+   Sitúate en el directorio `FormatearCaravana/fonten_flutter` (donde se encuentra el `Dockerfile`) y ejecuta el siguiente comando para crear la imagen:
+   ```bash
+   docker build -t snig-connect-web .
+   ```
+
+2. **Ejecutar el contenedor:**
+   Una vez que la imagen termine de construirse, levanta el contenedor mapeando el puerto web (por ejemplo, el 8080):
+   ```bash
+   docker run -d -p 8080:80 --name mi-snig-connect snig-connect-web
+   ```
+
+3. **Acceder a la aplicación:**
+   Abre tu navegador web e ingresa a `http://localhost:8080`. ¡La versión web de la aplicación estará funcionando y lista para usarse!
