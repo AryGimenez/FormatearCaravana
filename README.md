@@ -6,6 +6,175 @@ Este proyecto nació originalmente como un script de Python para formatear lectu
 
 ---
 
+## 🗺 Diagramas del Sistema
+
+### 1. 🏗 Arquitectura del Proyecto (Patrón Provider)
+Representación de la separación de responsabilidades entre la UI, los gestores de estado (Handlers), los modelos de datos y los servicios I/O.
+
+```mermaid
+graph TD
+    subgraph UI ["🎨 Capa de Interfaz (Screens & Widgets)"]
+        SnigScreen["SnigScreen (Pantalla Principal)"]
+        CargaMasivaScreen["CargaMasivaScreen (Texto Sucio / Batch)"]
+        EditCaravanaScreen["EditCaravanaScreen (Modal Edición Individual)"]
+        ConfigDrawerScreen["ConfigDrawerScreen (Drawer / Edición Lote)"]
+    end
+
+    subgraph State ["🧠 Capa de Estado y Lógica (Handlers / Provider)"]
+        SnigHandler["SnigHandler (ChangeNotifier Central)"]
+        CargaMasivaHandler["CargaMasivaHandler (Procesador de Texto)"]
+        EditCaravanaHandler["EditCaravanaHandler"]
+        ConfigDrawerHandler["ConfigDrawerHandler (Lógica Edición Masiva)"]
+    end
+
+    subgraph Data ["📦 Capa de Modelos"]
+        CaravanaModel["CaravanaModel (Validación 858 & Formato Trama)"]
+    end
+
+    subgraph Services ["🛠 Capa de Servicios I/O"]
+        TxtService["TxtService (Lector/Generador Trama .txt SNIG)"]
+        CsvService["CsvService (Importador/Exportador .csv)"]
+        PdfSimuladorService["PdfSimuladorService (Parseador PDF SNIG)"]
+        ApiService["ApiService (Integración API HTTP)"]
+    end
+
+    UI -->|Consume estado & dispara eventos| State
+    State -->|Manipula & valida| Data
+    State -->|Utiliza para I/O y parsing| Services
+```
+
+---
+
+### 2. 🔄 Flujo de Procesamiento y Validación de Lecturas
+Muestra el recorrido de la información desde su captura en campo hasta la exportación de la trama oficial del SNIG.
+
+```mermaid
+flowchart TD
+    subgraph Fuentes ["📥 Fuentes de Entrada"]
+        A1[CSV de Balanzas / Lector Tru-Test]
+        A2[Texto Sucio / Mensaje WhatsApp]
+        A3[Ingreso Manual Directo]
+    end
+
+    subgraph Procesamiento ["⚙️ Procesamiento & Normalización"]
+        B1[CsvService: Lectura de Filas]
+        B2[CargaMasivaHandler: Extracción Regex & Horas Correlativas]
+        B3[CaravanaModel: Autocompletado ISO 858]
+    end
+
+    subgraph Validacion ["🔍 Motor de Validación SNIG"]
+        C1{¿Cumple Reglamento?}
+        C2[15 dígitos numéricos?]
+        C3[Comienza con '858' Uruguay?]
+    end
+
+    subgraph Comparacion ["📊 Comparación con Simulador"]
+        D1[Carga PDF / TXT Oficial SNIG]
+        D2[PdfSimuladorService: Extraer EIDs]
+        D3[Cruce en Tiempo Real con Lectura Actual]
+    end
+
+    subgraph Salida ["📤 Salida & Exportación"]
+        E1[🟢 Estado OK / 🔴 Estado Faltante]
+        E2[TxtService: Generar Trama [|A000...|]]
+        E3[CsvService: Exportar Registro Completo]
+    end
+
+    A1 --> B1
+    A2 --> B2
+    A3 --> B3
+
+    B1 --> C1
+    B2 --> C1
+    B3 --> C1
+
+    C1 -->|Sí| C2 & C3
+    C1 -->|No| F[Error de Formato / Rechazo]
+
+    C2 & C3 --> G[Instancia CaravanaModel Válida]
+    G --> SnigHandler[SnigHandler - Estado Global]
+
+    D1 --> D2 --> D3
+    SnigHandler --> D3
+    D3 --> E1
+    SnigHandler --> E2 & E3
+```
+
+---
+
+### 3. 📱 Mapa de Pantallas y Navegación
+Flujo de usuario e interacción entre las diferentes vistas de la aplicación.
+
+```mermaid
+stateDiagram-v2
+    [*] --> SnigScreen: Iniciar Aplicación
+    
+    state SnigScreen {
+        [*] --> ListadoLecturas
+        ListadoLecturas --> BusquedaFiltro: Filtrar OK / Faltantes
+        ListadoLecturas --> CargarSimulador: Subir PDF SNIG
+    }
+
+    SnigScreen --> CargaMasivaScreen: Botón Carga Masiva
+    CargaMasivaScreen --> SnigScreen: Procesar y Agregar al Lote
+
+    SnigScreen --> EditCaravanaScreen: Tap sobre un Animal
+    EditCaravanaScreen --> SnigScreen: Guardar Edición Individual
+
+    SnigScreen --> ConfigDrawerScreen: Abrir Menú Lateral
+    ConfigDrawerScreen --> SnigScreen: Aplicar Cambios por Lote (GIA, Fecha, Hora)
+```
+
+---
+
+## 📂 Estructura del Proyecto Explicada
+
+A continuación se detalla la jerarquía del código fuente dentro de `fonten_flutter/lib`, comentando la responsabilidad específica de cada módulo para facilitar la mantenibilidad y reutilización como plantilla de arquitectura:
+
+```txt
+lib/
+├── core/                         # Configuración central del sistema y diseño visual
+│   └── theme/
+│       ├── app_styles.dart       # Definición de constantes visuales, colores de estado (OK/Faltante), bordes y estilos
+│       └── app_theme.dart        # ThemeData global de Flutter (Paletas claro/oscuro, tipografías y componentes)
+│
+├── models/                       # Modelos de datos del dominio
+│   └── caravana_models.dart      # CaravanaModel: Entidad principal. Reglas de validación ISO 858 (15 dígitos),
+│                                 # conversiones a/desde trama SNIG [|A000...|] y serialización JSON.
+│
+├── screens/                      # Capa de Interfaz de Usuario (UI) organizada por características
+│   ├── carga_masiva/             # Módulo para procesamiento de texto masivo / WhatsApp
+│   │   ├── carga_masiva_handler.dart  # Handler (Provider): Lógica para extraer caravanas de texto sucio y generar horas secuenciales
+│   │   ├── carga_masiva_screen.dart   # Vista UI: Campo de texto enriquecido y botón de importación
+│   │   └── widgets/
+│   │       └── temp_caravana_item.dart # Widget item: Previsualización de caravanas extraídas antes de confirmar
+│   │
+│   ├── config_drawer/            # Módulo de menú lateral y edición por lote
+│   │   ├── config_drawer_handler.dart # Handler (Provider): Aplicación masiva de GIA, fecha y horas correlativas
+│   │   └── config_drawer_screen.dart  # Vista UI (Drawer): Panel de ajustes globales y acciones por lote
+│   │
+│   ├── edit_caravana/            # Módulo de edición individual rápida
+│   │   ├── edit_caravana_handler.dart # Handler (Provider): Estado de edición temporal de un animal
+│   │   └── edit_caravana_screen.dart  # Vista UI (Modal/Pop-up): Formulario de ajuste de datos de una caravana
+│   │
+│   └── snig/                     # Módulo principal de trabajo con caravanas
+│       ├── caravana_item.dart    # Widget item: Tarjeta visual para renderizar cada caravana (badge verde/rojo, checkbox)
+│       ├── snig_handler.dart     # Handler Central (Provider): Mantiene la lista activa, estados de comparación y filtros
+│       └── snig_screen.dart      # Vista UI Principal: Lista de lecturas, contadores, barra de búsqueda y acciones
+│
+├── services/                     # Capa de Servicios I/O, almacenamiento y parsing de archivos
+│   ├── api_service.dart          # Integración HTTP con API backend externas o consultas SNIG
+│   ├── base_service.dart         # Clase base abstracta de servicios con utilidades de red y manejo de excepciones
+│   ├── csv_service.dart          # Lector/Escritor de archivos .csv (Compatibilidad con lectores RFID Tru-Test Data Link)
+│   ├── descarte.dart             # Filtro/Helper para la gestión de lecturas descartadas o duplicadas
+│   ├── pdf-simulador_service.dart# Extrae números EID desde archivos PDF oficiales generados por el simulador del SNIG
+│   └── txt_service.dart          # Parsea y genera archivos de texto plano (.txt) con el formato exacto de trama SNIG
+│
+└── main.dart                     # Punto de entrada de la aplicación. Configura la lista de MultiProvider y la navegación base
+```
+
+---
+
 ## 📱 Propuesta de Valor
 
 Los lectores RFID (ej. Tru-Test XRS-2) generan archivos que las aplicaciones por defecto exportan en formatos no compatibles directamente con las plataformas oficiales. **SNIG Connect** elimina la carga manual y la manipulación de Excel, permitiendo al operario transformar, validar y comparar lecturas en su celular, **100% offline**, garantizando que la información esté lista para subir al portal oficial sin errores.
